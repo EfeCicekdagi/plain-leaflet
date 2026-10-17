@@ -1,4 +1,5 @@
 """Ölçüm scripti: KT'ler üzerinde analyze() (ara bilgileriyle: analiz_detayli) çalıştırır ve eval/results.md tablosunu yazar.
+results.md İngilizce yazılır (rapor İngilizce).
 
 Kullanım (repo kökünden):
   python -m eval.run_eval                        # data/kt/*.txt üzerinde çalışır
@@ -24,8 +25,8 @@ sys.path.insert(0, str(KOK))
 
 import config  # noqa: E402
 from core import schema  # noqa: E402
-from core.pipeline import analiz_detayli, kanit_skoru  # noqa: E402
-from eval.readability import atesman  # noqa: E402
+from core.pipeline import analiz_detayli, dil_tespit, kanit_skoru  # noqa: E402
+from eval.readability import okunabilirlik  # noqa: E402
 
 EVAL = KOK / "eval"
 CIKTILAR = EVAL / "outputs"
@@ -38,33 +39,36 @@ SADAKAT_ORNEK = 3  # ilaç başına elle kontrol edilecek madde
 def sade_metin(sonuc: dict) -> str:
     cumleler = []
     for kart in schema.KARTLAR:
-        for madde in sonuc["kartlar"][kart]:
-            metin = madde["metin"].strip()
+        for madde in sonuc["cards"][kart]:
+            metin = madde["text"].strip()
             cumleler.append(metin if metin[-1] in ".!?" else metin + ".")
     return " ".join(cumleler)
 
 
 def olc(ad: str, kt_metni: str, sonuc: dict, detay: dict, sure: float) -> dict:
-    satir = {"ilac": ad, "sure_sn": round(sure, 1), "atesman_kt": atesman(kt_metni)}
-    if "hata" in sonuc:
-        satir["hata"] = sonuc["hata"]
+    dil = detay.get("dil") or dil_tespit(kt_metni)
+    skor_kt, olcut = okunabilirlik(kt_metni, dil)
+    satir = {"ilac": ad, "dil": dil, "olcut": olcut, "sure_sn": round(sure, 1), "okunabilirlik_kt": skor_kt}
+    if "error" in sonuc:
+        satir["error"] = sonuc["error"]
         return satir
-    maddeler = [m for kart in schema.KARTLAR for m in sonuc["kartlar"][kart]]
-    kalan, cikarilan = len(maddeler), len(sonuc["dogrulama"]["desteklenmeyen"])
+    maddeler = [m for kart in schema.KARTLAR for m in sonuc["cards"][kart]]
+    kalan, cikarilan = len(maddeler), len(sonuc["verification"]["unsupported"])
     satir.update({
-        "ilac_adi": sonuc["ilac_adi"],
-        "atesman_sade": atesman(sade_metin(sonuc)),
+        "drug_name": sonuc["drug_name"],
+        "okunabilirlik_sade": okunabilirlik(sade_metin(sonuc), dil)[0],
         "kalan": kalan,
         "cikarilan": cikarilan,
-        "gecen_oran": kalan / (kalan + cikarilan) if kalan + cikarilan else 0.0,
         # Bağımsız tekrar kontrol: son çıktıdaki her kanıt KT'de gerçekten var mı?
-        "kanit_dolu": sum(1 for m in maddeler if m["kanit"]),
-        "kanit_kt_de": sum(1 for m in maddeler if kanit_skoru(m["kanit"], kt_metni) >= config.KANIT_ESIK),
-        "soru": len(sonuc["eczaciya_sorular"]),
-        "guven": sonuc["dogrulama"]["guven"],
+        "kanit_dolu": sum(1 for m in maddeler if m["evidence"]),
+        "kanit_kt_de": sum(1 for m in maddeler if kanit_skoru(m["evidence"], kt_metni) >= config.KANIT_ESIK),
+        "soru": len(sonuc["pharmacist_questions"]),
+        "confidence": sonuc["verification"]["confidence"],
         "kod_elenen": detay.get("kod_elenen", 0),
         "sayi_elenen": detay.get("sayi_elenen", 0),
         "llm_elenen": detay.get("llm_elenen", 0),
+        "llm_ilk_ret": detay.get("llm_ilk_ret", detay.get("llm_elenen", 0)),
+        "duzeltilen": detay.get("duzeltilen", 0),
         "kriter_ret": detay.get("kriter_ret", {}),
         "dogrulayici_calisti": detay.get("dogrulayici_calisti", True),
     })
@@ -75,13 +79,13 @@ def sadakat_ornegi_yaz(sonuclar: dict[str, dict], tohum: int = 42) -> None:
     rastgele = random.Random(tohum)
     with open(SADAKAT_CSV, "w", encoding="utf-8-sig", newline="") as f:
         yazici = csv.writer(f)
-        yazici.writerow(["ilac", "kart", "metin", "kanit", "sadik"])
+        yazici.writerow(["ilac", "kart", "text", "evidence", "sadik"])
         for ad, sonuc in sonuclar.items():
-            if "hata" in sonuc:
+            if "error" in sonuc:
                 continue
-            maddeler = [(kart, m) for kart in schema.KARTLAR for m in sonuc["kartlar"][kart]]
+            maddeler = [(kart, m) for kart in schema.KARTLAR for m in sonuc["cards"][kart]]
             for kart, m in rastgele.sample(maddeler, min(SADAKAT_ORNEK, len(maddeler))):
-                yazici.writerow([ad, kart, m["metin"], m["kanit"], ""])
+                yazici.writerow([ad, kart, m["text"], m["evidence"], ""])
 
 
 def sadakat_oku() -> tuple[int, int] | None:
@@ -97,99 +101,114 @@ def sadakat_oku() -> tuple[int, int] | None:
 
 
 def yuzde(pay: float, payda: float) -> str:
-    return f"%{100 * pay / payda:.1f}" if payda else "-"
+    return f"{100 * pay / payda:.1f}%" if payda else "-"
 
 
 def rapor_yaz(ozet: dict) -> None:
     satirlar = ozet["satirlar"]
-    basarili = [s for s in satirlar if "hata" not in s]
-    hatali = [s for s in satirlar if "hata" in s]
+    basarili = [s for s in satirlar if "error" not in s]
+    hatali = [s for s in satirlar if "error" in s]
+    diller = sorted({s["dil"] for s in satirlar})
 
     y = [
-        "# Değerlendirme sonuçları",
+        "# Evaluation results",
         "",
-        f"- Tarih: {ozet['tarih']}",
-        f"- Model: `{ozet['model']}`, sıcaklık {config.TEMPERATURE}",
-        f"- KT sayısı: {len(satirlar)} (hatasız: {len(basarili)}, hatalı: {len(hatali)})",
-        f"- Kanıt eşiği (difflib): {config.KANIT_ESIK}",
+        f"- Date: {ozet['tarih']}",
+        f"- Model: `{ozet['model']}`, temperature {config.TEMPERATURE}",
+        f"- Leaflets: {len(satirlar)} (succeeded: {len(basarili)}, failed: {len(hatali)}), languages: {', '.join(diller)}",
+        f"- Quote match threshold (difflib): {config.KANIT_ESIK}",
         "",
-        "Bu dosya `python -m eval.run_eval` ile üretilir. Rapordaki rakamlar sadece buradan alınır.",
+        "Generated by `python -m eval.run_eval`. Numbers in the report come only from this file.",
         "",
-        "## 1. Okunabilirlik (Ateşman, önce / sonra)",
+        "## 1. Readability (before / after)",
         "",
-        "Yüksek skor = daha kolay metin. 90-100 çok kolay, 70-89 kolay, 50-69 orta, 30-49 zor, 1-29 çok zor.",
+        "Turkish leaflets: Ateşman score. English leaflets: Flesch Reading Ease. Both 0-100, higher = easier.",
+        "90-100 very easy, 70-89 easy, 50-69 medium, 30-49 difficult, 0-29 very difficult.",
         "",
-        "| İlaç | KT (önce) | Sade kartlar (sonra) | Fark |",
-        "|---|---:|---:|---:|",
+        "| Medicine | Language | Metric | Leaflet (before) | Plain cards (after) | Change |",
+        "|---|---|---|---:|---:|---:|",
     ]
     for s in basarili:
-        y.append(f"| {s['ilac']} | {s['atesman_kt']:.1f} | {s['atesman_sade']:.1f} | {s['atesman_sade'] - s['atesman_kt']:+.1f} |")
-    if basarili:
-        once = sum(s["atesman_kt"] for s in basarili) / len(basarili)
-        sonra = sum(s["atesman_sade"] for s in basarili) / len(basarili)
-        y.append(f"| **Ortalama** | **{once:.1f}** | **{sonra:.1f}** | **{sonra - once:+.1f}** |")
+        y.append(f"| {s['ilac']} | {s['dil']} | {s['olcut']} | {s['okunabilirlik_kt']:.1f} | {s['okunabilirlik_sade']:.1f} "
+                 f"| {s['okunabilirlik_sade'] - s['okunabilirlik_kt']:+.1f} |")
+    for olcut in sorted({s["olcut"] for s in basarili}):
+        grup = [s for s in basarili if s["olcut"] == olcut]
+        once = sum(s["okunabilirlik_kt"] for s in grup) / len(grup)
+        sonra = sum(s["okunabilirlik_sade"] for s in grup) / len(grup)
+        y.append(f"| **Average ({len(grup)} leaflet{'s' if len(grup) > 1 else ''})** | | **{olcut}** | **{once:.1f}** | **{sonra:.1f}** | **{sonra - once:+.1f}** |")
 
     kalan = sum(s["kalan"] for s in basarili)
     cikarilan = sum(s["cikarilan"] for s in basarili)
     y += [
         "",
-        "## 2. Kaynağa bağlılık ve doğrulayıcı",
+        "## 2. Source grounding and the verifier",
         "",
-        "- *Geçen oran*: modelin taslak maddelerinden üç kontrolü de geçenlerin oranı: kanıt KT'de var mı (difflib), sayılar tutuyor mu (kod), sade cümle alıntıya sadık mı (LLM doğrulayıcı, 4 kriter).",
-        "- *Kanıtı KT'de*: son çıktıdaki maddelerden kanıtı KT metninde bağımsız olarak tekrar bulunanlar.",
+        "Every draft item passes three checks: is the quote really in the leaflet (difflib), do the numbers match (code), "
+        "does the plain sentence stay faithful to its quote (LLM verifier, 4 criteria). Items the LLM verifier rejects are "
+        "rewritten once using its reason and verified again (finalize step); items that still fail are removed.",
         "",
-        "| İlaç | Taslak madde | Kanıt KT'de yok | Sayı tutmuyor | LLM reddetti | Kalan | Geçen oran | Kanıtı KT'de | Eczacı sorusu | Güven | Süre (sn) |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|",
+        "- *Pass rate*: share of draft items in the final cards.",
+        "- *Quote in leaflet*: final items whose quote is found in the leaflet again by an independent re-check.",
+        "",
+        "| Medicine | Draft items | Quote not in leaflet | Numbers differ | Rejected by LLM | Fixed and re-verified | Removed | Kept | Pass rate | Quote in leaflet | Pharmacist questions | Confidence | Time (s) |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---:|",
     ]
     for s in basarili:
-        uyari = "" if s["dogrulayici_calisti"] else " (LLM doğrulayıcı çalışmadı)"
+        uyari = "" if s["dogrulayici_calisti"] else " (LLM verifier did not run)"
         y.append(
-            f"| {s['ilac']}{uyari} | {s['kalan'] + s['cikarilan']} | {s['kod_elenen']} | {s['sayi_elenen']} | {s['llm_elenen']} | {s['kalan']} "
-            f"| {yuzde(s['kalan'], s['kalan'] + s['cikarilan'])} | {s['kanit_kt_de']}/{s['kalan']} | {s['soru']} | {s['guven']} | {s['sure_sn']} |"
+            f"| {s['ilac']}{uyari} | {s['kalan'] + s['cikarilan']} | {s['kod_elenen']} | {s['sayi_elenen']} | {s['llm_ilk_ret']} "
+            f"| {s['duzeltilen']} | {s['cikarilan']} | {s['kalan']} "
+            f"| {yuzde(s['kalan'], s['kalan'] + s['cikarilan'])} | {s['kanit_kt_de']}/{s['kalan']} | {s['soru']} | {s['confidence']} | {s['sure_sn']} |"
         )
-    toplam = {k: sum(s[k] for s in basarili) for k in ("kod_elenen", "sayi_elenen", "llm_elenen", "kanit_kt_de", "soru")}
+    toplam = {k: sum(s[k] for s in basarili)
+              for k in ("kod_elenen", "sayi_elenen", "llm_ilk_ret", "duzeltilen", "kanit_kt_de", "soru")}
     if basarili:
         y.append(
-            f"| **Toplam** | **{kalan + cikarilan}** | **{toplam['kod_elenen']}** | **{toplam['sayi_elenen']}** | **{toplam['llm_elenen']}** "
-            f"| **{kalan}** | **{yuzde(kalan, kalan + cikarilan)}** | **{toplam['kanit_kt_de']}/{kalan}** | **{toplam['soru']}** | | |"
+            f"| **Total** | **{kalan + cikarilan}** | **{toplam['kod_elenen']}** | **{toplam['sayi_elenen']}** | **{toplam['llm_ilk_ret']}** "
+            f"| **{toplam['duzeltilen']}** | **{cikarilan}** | **{kalan}** | **{yuzde(kalan, kalan + cikarilan)}** | **{toplam['kanit_kt_de']}/{kalan}** | **{toplam['soru']}** | | |"
         )
 
     y += [
         "",
-        "LLM doğrulayıcının reddettiği maddelerde hangi kriter hayır dedi (bir madde birden fazla kritere takılabilir):",
+        "Which criterion the LLM verifier failed in its first pass (one item can fail several):",
         "",
-        "| Kriter | Ret sayısı |",
+        "| Criterion | Rejections |",
         "|---|---:|",
     ]
     for kriter in schema.DOGRULAYICI_KRITERLER:
         y.append(f"| `{kriter}` | {sum(s['kriter_ret'].get(kriter, 0) for s in basarili)} |")
 
     sadakat = sadakat_oku()
+    taslak_hata = toplam["kod_elenen"] + toplam["sayi_elenen"] + toplam["llm_ilk_ret"] if basarili else 0
     y += [
         "",
-        "## 3. Halüsinasyon oranı",
+        "## 3. Hallucination rate",
         "",
-        "Hedef: %5'in altı (Samsung GenAI kursu, Bölüm 4, Responsible AI ölçütleri).",
+        "Target: below 5% (Samsung Innovation Campus GenAI course, Chapter 4, Responsible AI metrics).",
         "",
-        "| Aşama | Oran |",
+        "| Stage | Rate |",
         "|---|---:|",
-        f"| Taslak (doğrulayıcıdan önce): kaynağa bağlanamayan veya alıntıdan fazlasını söyleyen madde | {yuzde(cikarilan, kalan + cikarilan)} |",
-        f"| Son çıktı (elle kontrol): alıntıya sadık olmayan madde | {yuzde(sadakat[1] - sadakat[0], sadakat[1]) if sadakat else 'elle kontrol bekleniyor'} |",
+        f"| Draft, before verification: items not grounded in the leaflet or saying more than their quote | {yuzde(taslak_hata, kalan + cikarilan)} |",
+        f"| Final cards, automatic checks: items removed because they could not be verified | {yuzde(cikarilan, kalan + cikarilan)} |",
+        f"| Final output, manual check: items not faithful to their quote | "
+        f"{yuzde(sadakat[1] - sadakat[0], sadakat[1]) if sadakat else 'manual check pending'} |",
     ]
 
-    y += ["", "## 4. Elle sadakat kontrolü", ""]
+    y += ["", "## 4. Manual faithfulness check", ""]
     if sadakat:
-        y.append(f"Rastgele seçilen {sadakat[1]} madde (ilaç başına {SADAKAT_ORNEK}) \"sade cümle alıntıya sadık mı?\" diye elle işaretlendi.")
+        y.append(f"{sadakat[1]} randomly sampled items ({SADAKAT_ORNEK} per medicine) were checked by hand: "
+                 "\"Is the plain sentence faithful to its quote?\"")
         y.append("")
-        y.append(f"**Sadakat: {sadakat[0]}/{sadakat[1]} = {yuzde(*sadakat)}**")
+        y.append(f"**Faithfulness: {sadakat[0]}/{sadakat[1]} = {yuzde(*sadakat)}**")
         y.append("")
-        y.append("İşaretlemeler: `eval/sadakat_kontrol.csv`")
+        y.append("Labels: `eval/sadakat_kontrol.csv` (E = yes, H = no)")
     else:
-        y.append("Henüz işaretlenmedi. `eval/sadakat_kontrol.csv` dosyasının `sadik` sütununa E/H yazıp `python -m eval.run_eval --sadakat` çalıştırın.")
+        y.append("Not labelled yet. Write E/H in the `sadik` column of `eval/sadakat_kontrol.csv`, "
+                 "then run `python -m eval.run_eval --sadakat`.")
 
     if hatali:
-        y += ["", "## 5. Hata veren KT'ler", "", "| İlaç | Hata |", "|---|---|"]
-        y += [f"| {s['ilac']} | {s['hata']} |" for s in hatali]
+        y += ["", "## 5. Leaflets that returned an error", "", "| Medicine | Error |", "|---|---|"]
+        y += [f"| {s['ilac']} | {s['error']} |" for s in hatali]
 
     with open(SONUCLAR, "w", encoding="utf-8") as f:
         f.write("\n".join(y) + "\n")
@@ -222,18 +241,20 @@ def calistir(klasor: Path, onbellek: bool, bekle: float) -> None:
         sonuclar[ad] = sonuc
         satir = olc(ad, kt_metni, sonuc, detay, sure)
         satirlar.append(satir)
-        durum = f"HATA: {satir['hata']}" if "hata" in satir else f"{satir['kalan']} madde, {satir['cikarilan']} çıkarıldı, güven {satir['guven']}"
-        print(f"[{i}/{len(dosyalar)}] {ad}: {durum}")
+        durum = f"HATA: {satir['error']}" if "error" in satir else f"{satir['kalan']} madde, {satir['cikarilan']} çıkarıldı, güven {satir['confidence']}"
+        print(f"[{i}/{len(dosyalar)}] {ad} ({satir['dil']}): {durum}")
 
     ozet = {"tarih": date.today().isoformat(), "model": config.MODEL_NAME, "satirlar": satirlar}
     with open(OZET, "w", encoding="utf-8") as f:
         json.dump(ozet, f, ensure_ascii=False, indent=2)
+    yazilanlar = [SONUCLAR.relative_to(KOK)]
     if sadakat_oku() is None:
         sadakat_ornegi_yaz(sonuclar)
+        yazilanlar.append(SADAKAT_CSV.relative_to(KOK))
     else:
         print(f"{SADAKAT_CSV.relative_to(KOK)} zaten işaretlenmiş, üzerine yazılmadı.")
     rapor_yaz(ozet)
-    print(f"Yazıldı: {SONUCLAR.relative_to(KOK)}, {SADAKAT_CSV.relative_to(KOK)}")
+    print("Yazıldı:", ", ".join(map(str, yazilanlar)))
 
 
 def main() -> None:
