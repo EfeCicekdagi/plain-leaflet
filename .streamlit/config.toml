@@ -1,0 +1,13 @@
+# UI theme for app.py: always light and high contrast, also on dark-mode devices
+[theme]
+base = "light"
+primaryColor = "#0b5394"
+backgroundColor = "#fbf8f3"
+secondaryBackgroundColor = "#f1ece3"
+textColor = "#1b1f24"
+
+[client]
+toolbarMode = "minimal"
+
+[browser]
+gatherUsageStats = false
