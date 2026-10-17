@@ -17,7 +17,7 @@ import streamlit.components.v1 as components
 from core.inputs import image_to_text, pdf_to_text
 from core.pipeline import analyze
 from safety.interactions import check_interactions
-from safety.sections import extract_leaflet
+from safety.sections import extract_leaflet, find_other_medicines
 
 # Card keys from the data contract, in display order: (key, title, icon)
 CARDS = [
@@ -406,10 +406,21 @@ def show_result(result: dict) -> None:
         )
 
 
-def show_warnings(warnings: list[dict]) -> None:
-    """Render interaction warnings as red cards with the leaflet quote."""
+def show_warnings(check: dict) -> None:
+    """Render interaction warnings as red cards with the leaflet quote.
+
+    check: {"warnings": [...], "unreadable": [file names], "unchecked": [drug names]}
+    """
+    warnings = check.get("warnings") or []
+    if check.get("unreadable"):
+        notice("warn", "⚠️", "We could not read: " + ", ".join(check["unreadable"]))
+    if check.get("unchecked"):
+        notice("warn", "⚠️", "We could not find the “Other medicines” part in: " + ", ".join(check["unchecked"])
+               + ". These leaflets were not checked. Please use the English package leaflet.")
+
     if not warnings:
-        notice("ok", "✅", "No warnings were found in these leaflets.")
+        if check.get("checked", 0) >= 1:
+            notice("ok", "✅", "No warnings were found in these leaflets.")
         notice("info", "ℹ️", "This check only finds medicine names written in the leaflets. "
                              "Always tell your pharmacist about all the medicines you take.")
         return
@@ -474,9 +485,15 @@ def medicines_tab() -> None:
                         leaflets[drug_label(upload)] = text
                     else:
                         unreadable.append(upload.name)
-                st.session_state["medicines_result"] = check_interactions(leaflets)
-            if unreadable:
-                notice("warn", "⚠️", "We could not read: " + ", ".join(unreadable))
+                # A leaflet without an "Other medicines" section cannot warn about
+                # anything, so "no warnings" would be misleading for it
+                unchecked = [name for name, text in leaflets.items() if not find_other_medicines(text)]
+                st.session_state["medicines_result"] = {
+                    "warnings": check_interactions(leaflets),
+                    "unreadable": unreadable,
+                    "unchecked": unchecked,
+                    "checked": len(leaflets) - len(unchecked),
+                }
 
     if "medicines_result" in st.session_state:
         show_warnings(st.session_state["medicines_result"])
