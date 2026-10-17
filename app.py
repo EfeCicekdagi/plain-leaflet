@@ -335,13 +335,31 @@ def read_aloud(text: str) -> None:
   if (!synth) {{
     document.getElementById("controls").outerHTML = "<p>Read aloud is not available in this browser.</p>";
   }} else {{
+    // Without an explicit English voice the browser falls back to the system
+    // default, which on a Turkish Windows reads English with a Turkish voice.
+    // Natural/online voices (Edge, Chrome) sound far better than the old desktop ones.
+    const score = v => {{
+      const lang = v.lang.replace("_", "-").toLowerCase();
+      if (!lang.startsWith("en")) return -1;
+      return (/natural/i.test(v.name) ? 8 : 0) + (/online|google/i.test(v.name) ? 4 : 0)
+           + (lang === "en-gb" ? 2 : lang === "en-us" ? 1 : 0);
+    }};
+    const englishVoice = () => synth.getVoices()
+      .filter(v => score(v) >= 0)
+      .sort((a, b) => score(b) - score(a))[0];
+    synth.onvoiceschanged = () => synth.getVoices();  // voices load asynchronously in some browsers
     document.getElementById("read").onclick = () => {{
       synth.cancel();
+      const voice = englishVoice();
+      if (!voice) {{
+        document.getElementById("controls").outerHTML =
+          "<p>No English voice is installed. Try Microsoft Edge or Google Chrome.</p>";
+        return;
+      }}
       const u = new SpeechSynthesisUtterance(text);
-      u.lang = "en-GB";
+      u.voice = voice;
+      u.lang = voice.lang;
       u.rate = 0.9;
-      const voice = synth.getVoices().find(v => v.lang === "en-GB");
-      if (voice) u.voice = voice;
       synth.speak(u);
     }};
     document.getElementById("stop").onclick = () => synth.cancel();
