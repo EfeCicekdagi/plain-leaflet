@@ -76,14 +76,14 @@ Target: below 5% (Samsung Innovation Campus GenAI course, Chapter 4, Responsible
 |---|---:|
 | Draft, before verification: items not grounded in the leaflet or saying more than their quote | 8.8% |
 | Final cards, automatic checks: items removed because they could not be verified | 2.9% |
-| Final output, independent check (section 4): items not faithful to their quote | 6.7% |
+| Final output, independent check (section 4): items not faithful to their quote | 13.3% |
 
 ## 4. Independent faithfulness check
 
 45 randomly sampled final items (3 per medicine) were checked against their quotes with the verifier's four criteria: "Is the plain sentence faithful to its quote?"
 
-Reviewer: labelled by Claude (Anthropic), an AI model independent of the Gemini pipeline, then all items reviewed and confirmed by a team member (Efe Çiçekdağı).
+Reviewer: labelled by Claude (Anthropic), an AI model independent of the Gemini pipeline, and reviewed by a team member (Efe Çiçekdağı); a second review by GPT (OpenAI) changed 3 labels from E to H, and the team accepted the changes.
 
-**Faithfulness: 42/45 = 93.3%**
+**Faithfulness: 39/45 = 86.7%**
 
 Labels and the reason for every H: `eval/sadakat_kontrol.csv` (E = yes, H = no)

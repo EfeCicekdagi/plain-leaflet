@@ -36,7 +36,8 @@ SONUCLAR = EVAL / "results.md"
 SADAKAT_ORNEK = 3  # ilaç başına elle kontrol edilecek madde
 # Sadakat etiketlerini kim koydu; rapora aynen yazılır. Bir insan etiketlerse bunu değiştirin.
 SADAKAT_KONTROL_EDEN = ("labelled by Claude (Anthropic), an AI model independent of the Gemini pipeline, "
-                        "then all items reviewed and confirmed by a team member (Efe Çiçekdağı)")
+                        "and reviewed by a team member (Efe Çiçekdağı); a second review by GPT (OpenAI) "
+                        "changed 3 labels from E to H, and the team accepted the changes")
 
 
 def sade_metin(sonuc: dict) -> str:
