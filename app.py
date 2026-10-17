@@ -9,6 +9,7 @@ import datetime
 import html
 import json
 import re
+import sys
 from pathlib import Path
 
 import streamlit as st
@@ -171,6 +172,32 @@ class _NotCached(Exception):
 
     def __init__(self, value):
         self.value = value
+
+
+GENERIC_ERROR = "We could not explain this leaflet right now. Please try again later."
+
+# Technical failures mapped to messages an older user can act on. The original
+# message is written to the server log for developers, never shown on screen.
+TECHNICAL_ERRORS = [
+    (("gemini_api_key", "api key", "api_key", "permission", "403"),
+     "The explanation service is not available at the moment. Please try again later."),
+    (("429", "quota", "usage limit", "rate limit", "kota"),
+     "Too many people are using the service right now. Please wait a minute and try again."),
+    (("model çağrısı", "model call", "timeout", "unavailable", "503", "500"),
+     "The explanation service did not answer. Please try again in a moment."),
+]
+
+
+def user_message(raw: str) -> str:
+    """Turn an analyze() error into a short message for the user."""
+    print(f"[analyze error] {raw}", file=sys.stderr)
+    low = raw.lower()
+    for keys, message in TECHNICAL_ERRORS:
+        if any(k in low for k in keys):
+            return message
+    # Contract errors are written for the user in English (e.g. "This text does
+    # not look like a leaflet"); anything else is replaced by the generic message
+    return raw if raw.isascii() else GENERIC_ERROR
 
 
 def is_explanation(result) -> bool:
@@ -378,16 +405,13 @@ def card_file_name(result: dict) -> str:
 def show_result(result: dict) -> None:
     """Render the analyze() output as five cards and a question list."""
     if isinstance(result, dict) and result.get("error"):
-        st.error(result["error"])
+        st.error(user_message(str(result["error"])))
         return
     if not is_explanation(result):
         # Not the agreed format (e.g. another error key): never show empty
         # cards, which would wrongly say the leaflet has no information
-        st.error("We could not explain this leaflet right now. Please try again later.")
-        details = [str(v) for v in result.values() if isinstance(v, str)] if isinstance(result, dict) else []
-        if details:
-            with st.expander("Details"):
-                st.write(details[0])
+        details = [v for v in result.values() if isinstance(v, str)] if isinstance(result, dict) else []
+        st.error(user_message(details[0]) if details else GENERIC_ERROR)
         return
 
     if result.get("drug_name"):
