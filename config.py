@@ -15,7 +15,8 @@ TEMPERATURE = 0.0      # greedy decoding: tıbbi metinde yaratıcılık değil t
 # Modelin gizli düşünme bütçesi (token). Promptlarda açık adım adım düşünme (analiz/neden alanları) olduğu için kapalı:
 # paracetamol KT'sinde taslak 40-69 sn'den 14 sn'ye indi, madde sayısı ve kanıt kontrolü sonucu değişmedi. None = model varsayılanı.
 _dusunme = os.getenv("GEMINI_DUSUNME", "0").strip().lower()
-DUSUNME_BUTCESI = None if _dusunme in ("none", "") else int(_dusunme)
+DUSUNME_BUTCESI = int(_dusunme) if _dusunme.isdigit() else None
+MAX_CIKTI_TOKEN = 16384  # gerçek çıktılar 3-6 bin token; sınır sadece döngüye giren cevabı keser
 LLM_RETRY = 1          # hata olursa kaç kez daha denenir
 LLM_RETRY_WAIT = 3.0   # tekrar denemeden önce beklenecek saniye
 LLM_KOTA_WAIT = 20.0   # kota hatasında (429) beklenecek saniye

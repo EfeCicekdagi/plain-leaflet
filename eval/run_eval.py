@@ -247,12 +247,14 @@ def calistir(klasor: Path, onbellek: bool, bekle: float) -> None:
     ozet = {"tarih": date.today().isoformat(), "model": config.MODEL_NAME, "satirlar": satirlar}
     with open(OZET, "w", encoding="utf-8") as f:
         json.dump(ozet, f, ensure_ascii=False, indent=2)
+    yazilanlar = [SONUCLAR.relative_to(KOK)]
     if sadakat_oku() is None:
         sadakat_ornegi_yaz(sonuclar)
+        yazilanlar.append(SADAKAT_CSV.relative_to(KOK))
     else:
         print(f"{SADAKAT_CSV.relative_to(KOK)} zaten işaretlenmiş, üzerine yazılmadı.")
     rapor_yaz(ozet)
-    print(f"Yazıldı: {SONUCLAR.relative_to(KOK)}, {SADAKAT_CSV.relative_to(KOK)}")
+    print("Yazıldı:", ", ".join(map(str, yazilanlar)))
 
 
 def main() -> None:

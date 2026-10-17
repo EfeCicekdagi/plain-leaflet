@@ -13,6 +13,10 @@ import config
 _client = None
 
 
+class KotaHatasi(RuntimeError):
+    """Ücretsiz kota doldu (429). Arayüz kullanıcıya "daha sonra tekrar deneyin" der."""
+
+
 def _istemci() -> genai.Client:
     global _client
     if _client is None:
@@ -25,25 +29,29 @@ def _istemci() -> genai.Client:
 
 def _uret(model: str, contents, ayar: types.GenerateContentConfig) -> str:
     """Tek çağrı. Hata olursa config.LLM_RETRY kez tekrar dener; kota hatasında (429) daha uzun bekler."""
-    son_hata = None
+    istemci = _istemci()  # anahtar yoksa tekrar denemeden hemen hata
+    son_hata, kota = None, False
     for deneme in range(1 + config.LLM_RETRY):
         try:
-            cevap = _istemci().models.generate_content(model=model, contents=contents, config=ayar)
+            cevap = istemci.models.generate_content(model=model, contents=contents, config=ayar)
             if cevap.text:
                 return cevap.text
-            son_hata = "modelden boş cevap geldi"
+            son_hata, kota = "modelden boş cevap geldi", False
             bekle = config.LLM_RETRY_WAIT
         except errors.ClientError as e:
             if e.code != 429:
                 raise  # 400/403/404 tekrar denemekle düzelmez
-            son_hata = "kota doldu (429), biraz sonra tekrar deneyin"
+            son_hata, kota = "kota doldu (429), biraz sonra tekrar deneyin", True
             bekle = config.LLM_KOTA_WAIT
         except errors.APIError as e:
-            son_hata = f"{e.code} {e.status}"
+            son_hata, kota = f"{e.code} {e.status}", False
+            bekle = config.LLM_RETRY_WAIT
+        except Exception as e:  # ağ kopması, zaman aşımı
+            son_hata, kota = f"{type(e).__name__}: {e}", False
             bekle = config.LLM_RETRY_WAIT
         if deneme < config.LLM_RETRY:
             time.sleep(bekle)
-    raise RuntimeError(f"Model çağrısı başarısız: {son_hata}")
+    raise (KotaHatasi if kota else RuntimeError)(f"Model çağrısı başarısız: {son_hata}")
 
 
 def ask(prompt: str, sistem: str | None = None, sema: dict | None = None, model: str | None = None,
@@ -61,6 +69,7 @@ def ask(prompt: str, sistem: str | None = None, sema: dict | None = None, model:
         system_instruction=sistem,
         response_schema=types.Schema.model_validate(sema) if sema else None,
         thinking_config=types.ThinkingConfig(thinking_budget=dusunme) if dusunme is not None else None,
+        max_output_tokens=config.MAX_CIKTI_TOKEN,  # model döngüye girerse sonsuza kadar beklemesin
     )
     try:
         return _uret(model, prompt, ayar)

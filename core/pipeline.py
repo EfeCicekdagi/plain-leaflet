@@ -13,12 +13,14 @@ Akış (Draft -> Validate -> Finalize):
 """
 import json
 import re
+import sys
 import unicodedata
 from difflib import SequenceMatcher
+from functools import lru_cache
 
 import config
 from core import schema
-from core.llm import ask
+from core.llm import KotaHatasi, ask
 
 
 def _mock() -> dict:
@@ -41,8 +43,12 @@ MESAJLAR = {
         "en": "No plain information could be taken from this leaflet. Please ask your pharmacist.",
     },
     "hata": {
-        "tr": "Analiz yapılamadı ({}). Lütfen biraz sonra tekrar deneyin.",
-        "en": "The analysis could not be completed ({}). Please try again in a moment.",
+        "tr": "Analiz yapılamadı. Lütfen biraz sonra tekrar deneyin.",
+        "en": "The analysis could not be completed. Please try again in a moment.",
+    },
+    "kota": {
+        "tr": "Yapay zekâ servisinin kullanım sınırı doldu. Lütfen daha sonra tekrar deneyin.",
+        "en": "The AI service has reached its usage limit. Please try again later.",
     },
 }
 
@@ -51,10 +57,15 @@ _EN_KELIMELER = {"the", "and", "of", "to", "with", "your", "this", "you", "if", 
 
 
 def dil_tespit(metin: str) -> str:
-    """"tr" veya "en". Sık geçen kelimelere bakar; karar verilemezse "en"."""
-    kelimeler = re.findall(r"[a-zçğıöşü]+", turkce_kucuk(metin or "")[:20000])
-    tr = sum(k in _TR_KELIMELER for k in kelimeler) + 3 * sum(any(h in k for h in "ğış") for k in kelimeler)
-    en = sum(k in _EN_KELIMELER for k in kelimeler)
+    """"tr" veya "en". Türkçeye özgü harflere (ğ ş ı İ, büyük halleri dahil) ve sık geçen kelimelere bakar.
+    Karar verilemezse "en" (arayüz İngilizce). Harfler küçültmeden önce sayılır: Türkçe kural ("I" -> "ı")
+    İngilizcedeki "If"i Türkçe gösterir, normal kural da büyük harfli Türkçeden "İ"yi siler."""
+    kelimeler = re.findall(r"[A-Za-zÇĞİÖŞÜçğıöşü]+", (metin or "")[:20000])
+    tr = en = 0
+    for k in kelimeler:
+        kucuk = k.replace("İ", "i").lower()
+        tr += (kucuk in _TR_KELIMELER) + 3 * any(h in k for h in "ğĞşŞıİ")
+        en += kucuk in _EN_KELIMELER
     return "tr" if tr > en else "en"
 
 
@@ -126,59 +137,90 @@ def _sadelestir(metin: str) -> str:
     return re.sub(r"\s+", " ", metin).strip()
 
 
+@lru_cache(maxsize=8)
+def _kt_hazirla(kt_metni: str) -> str:
+    """KT'nin karşılaştırmaya hazır, boşluksuz hali. Her madde için yeniden hesaplanmasın diye önbellekte tutulur."""
+    return _sadelestir(kt_metni).replace(" ", "")
+
+
+_KISA_PARCA = 40       # bundan kısa parçalarda bulanık eşleşme yanıltıcı olur, sadece birebir eşleşme kabul edilir
+# " ... " ile birleştirilen parçalar KT'de sırayla ve bu kadar karakter (boşluksuz) içinde geçmeli: aynı bölüm.
+# Gerçek çıktılarda en geniş yayılım 474 karakterdi; farklı bölümlerden toplanan parçalar bundan çok uzaktır.
+_BOLUM_ARALIGI = 1000
+_AYIRICI = r"\s*(?:\.\.\.|…|:|•)\s*"
+
+
 def kanit_skoru(kanit: str, kt_metni: str) -> float:
     """Kanıtın KT metnindeki en benzer parçaya benzerliği (0-1). Birebir geçiyorsa 1.0.
-    Kanıt " ... " ile birleştirilmiş birkaç parçaysa (başlık ... liste maddesi) her parça ayrı aranır, en düşük skor döner."""
-    # ":" ile de bölünür: model başlığı ve liste maddesini " ... " yerine ":" ile birleştirmiş olabilir.
-    # Ayrıca uzun gerçek bir başlığın arkasına eklenmiş kısa, uydurma bir parça da böylece ayrı yakalanır.
-    return _parcali_skor(kanit, kt_metni, r"\s*(?:\.\.\.|…|:)\s*")
 
-
-def _parcali_skor(kanit: str, kt_metni: str, ayirici: str) -> float:
-    parcalar = [p for p in re.split(ayirici, kanit or "") if p.strip(" .:;,-•")]
-    if not parcalar:
+    Kanıt " ... " (veya ":", "•") ile birleştirilmiş birkaç parçaysa (başlık ... liste maddesi):
+    her parça ayrı aranır ve en düşük skor döner. Ayrıca parçalar KT'de sırayla ve birbirine yakın geçmelidir;
+    farklı bölümlerden toplanmış parçalar (örn. saklama cümlesi ... doz cümlesi) 0 alır.
+    ":" ile de bölünür: model başlık ile maddeyi ":" ile birleştirmiş olabilir; uzun gerçek bir başlığın
+    arkasına eklenmiş kısa, uydurma bir parça da böylece ayrı yakalanır.
+    Bilinen sınır: KT'de çok yerde geçen bir kelime ("Bulantı") yanlış başlığın altına bağlanırsa yakalanmayabilir.
+    """
+    parcalar = [p for p in re.split(_AYIRICI, kanit or "") if p.strip(" .:;,-•")]
+    m = _kt_hazirla(kt_metni or "")
+    if not parcalar or not m:
         return 0.0
-    return min(_parca_skoru(p, kt_metni) for p in parcalar)
-
-
-_KISA_PARCA = 40  # bundan kısa parçalarda bulanık eşleşme yanıltıcı olur, sadece birebir eşleşme kabul edilir
-
-
-def _parca_skoru(kanit: str, kt_metni: str) -> float:
-    k, m = _sadelestir(kanit), _sadelestir(kt_metni)
-    if not k or not m:
+    bulunanlar = [_parca_bul(p, m) for p in parcalar]
+    skor = min(b[0] for b in bulunanlar)
+    if len(bulunanlar) > 1 and skor > 0 and not _ayni_bolumde([b[1] for b in bulunanlar]):
         return 0.0
-    # Boşluklar silinerek de denenir: PDF'ten gelen bölünmüş kelimeler ("W ait", "K eep")
-    if k in m or k.replace(" ", "") in m.replace(" ", ""):
-        return 1.0
-    if len(k) < _KISA_PARCA:
-        return 0.0
-    # Bulanık karşılaştırma da boşluksuz yapılır; böylece eşik PDF boşluk hatalarına değil gerçek farka bakar
-    k, m = k.replace(" ", ""), m.replace(" ", "")
+    return skor
 
-    # Aday başlangıç noktaları: en uzun ortak parça + kanıtın birkaç parçasının metinde birebir geçtiği yerler
+
+def _ayni_bolumde(konumlar: list[list[int]]) -> bool:
+    """Her parça için bir konum seçilebiliyor mu: artan sırada ve ilk ile son arası en fazla _BOLUM_ARALIGI?"""
+    def ara(i: int, onceki: int, ilk: int) -> bool:
+        if i == len(konumlar):
+            return True
+        return any(ara(i + 1, k, k if i == 0 else ilk) for k in konumlar[i]
+                   if k >= onceki and (i == 0 or k - ilk <= _BOLUM_ARALIGI))
+    return ara(0, -1, 0)
+
+
+def _parca_bul(parca: str, m: str) -> tuple[float, list[int]]:
+    """(benzerlik, KT'deki konumlar). m: _kt_hazirla() çıktısı."""
+    k_bosluklu = _sadelestir(parca)
+    k = k_bosluklu.replace(" ", "")  # boşluksuz: PDF'ten gelen bölünmüş kelimeler ("W ait", "K eep")
+    if not k:
+        return 0.0, []
+    konumlar, bulunan = [], m.find(k)
+    while bulunan != -1 and len(konumlar) < 30:
+        konumlar.append(bulunan)
+        bulunan = m.find(k, bulunan + 1)
+    if konumlar:
+        return 1.0, konumlar
+    if len(k_bosluklu) < _KISA_PARCA:
+        return 0.0, []
+
+    # Bulanık karşılaştırma. Aday başlangıç noktaları: en uzun ortak parça + kanıtın birkaç parçasının birebir geçtiği yerler
     adaylar = set()
     eslesme = SequenceMatcher(None, m, k, autojunk=False).find_longest_match(0, len(m), 0, len(k))
     if eslesme.size:
         adaylar.add(eslesme.a - eslesme.b)
-    parca = 12
-    for ofset in range(0, max(1, len(k) - parca + 1), max(1, len(k) // 6)):
-        bulunan = m.find(k[ofset:ofset + parca])
+    parca_boyu = 12
+    for ofset in range(0, max(1, len(k) - parca_boyu + 1), max(1, len(k) // 6)):
+        bulunan = m.find(k[ofset:ofset + parca_boyu])
         for _ in range(5):
             if bulunan == -1:
                 break
             adaylar.add(bulunan - ofset)
-            bulunan = m.find(k[ofset:ofset + parca], bulunan + 1)
+            bulunan = m.find(k[ofset:ofset + parca_boyu], bulunan + 1)
 
-    en_iyi = 0.0
+    en_iyi, en_iyi_konum = 0.0, 0
     for aday in adaylar:
         for kayma in (-6, -3, 0, 3, 6):
             for uzunluk in (len(k) - 6, len(k), len(k) + 6):
                 bas = max(0, aday + kayma)
                 sm = SequenceMatcher(None, m[bas:bas + max(1, uzunluk)], k, autojunk=False)
                 if sm.real_quick_ratio() > en_iyi and sm.quick_ratio() > en_iyi:
-                    en_iyi = max(en_iyi, sm.ratio())
-    return en_iyi
+                    oran = sm.ratio()
+                    if oran > en_iyi:
+                        en_iyi, en_iyi_konum = oran, bas
+    return en_iyi, [en_iyi_konum]
 
 
 _SAYI_KELIMELERI = {
@@ -197,9 +239,14 @@ def _sayilar(metin: str, kelimeler_dahil: bool = False) -> set[str]:
     return sayilar
 
 
+@lru_cache(maxsize=8)
+def _kt_sayilari(kt_metni: str) -> frozenset[str]:
+    return frozenset(_sayilar(kt_metni))
+
+
 def sayilar_tutarli(metin: str, kanit: str, kt_metni: str) -> bool:
     """Kanıttaki her sayı KT'de, sade cümledeki her sayı kanıtta geçmeli. Doz/yaş/süre değişikliğini kodla yakalar."""
-    return _sayilar(kanit) <= _sayilar(kt_metni) and _sayilar(metin) <= _sayilar(kanit, kelimeler_dahil=True)
+    return _sayilar(kanit) <= _kt_sayilari(kt_metni) and _sayilar(metin) <= _sayilar(kanit, kelimeler_dahil=True)
 
 
 # ---------- LLM kontrolü: sade cümle alıntıya sadık mı? ----------
@@ -228,8 +275,9 @@ def _llm_kontrol(maddeler: list[dict]) -> dict[int, dict] | None:
     return kararlar
 
 
-def _guven(kalan: int, cikarilan: int, dogrulayici_tam: bool) -> str:
-    if kalan == 0:
+def _guven(kalan: int, cikarilan: int, dogrulayici_tam: bool, dogrulayici_calisti: bool = True) -> str:
+    # Hiçbir madde LLM doğrulayıcıdan geçmediyse güven düşüktür; arayüz "eczacınızla teyit edin" uyarısını gösterir
+    if kalan == 0 or not dogrulayici_calisti:
         return "dusuk"
     oran = cikarilan / (kalan + cikarilan)
     if oran == 0 and dogrulayici_tam:
@@ -317,7 +365,8 @@ def dogrula(sonuc: dict, kt_metni: str) -> tuple[dict, dict]:
     kalan = schema.madde_sayisi(sonuc)
     sonuc["dogrulama"] = {
         "desteklenmeyen": desteklenmeyen,
-        "guven": _guven(kalan, detay["kod_elenen"] + detay["sayi_elenen"] + detay["llm_elenen"], dogrulayici_tam),
+        "guven": _guven(kalan, detay["kod_elenen"] + detay["sayi_elenen"] + detay["llm_elenen"], dogrulayici_tam,
+                        detay["dogrulayici_calisti"]),
     }
     return sonuc, detay
 
@@ -333,6 +382,9 @@ def analiz_detayli(kt_metni: str) -> tuple[dict, dict]:
     try:
         if not isinstance(kt_metni, str) or len(kt_metni.strip()) < config.MIN_KT_KARAKTER:
             return schema.hata(_mesaj("kisa", dil)), {}
+        kirpildi = len(kt_metni.strip()) > config.MAX_KT_KARAKTER
+        if kirpildi:  # EMA'nın tam ürün belgesi gibi: önce kt_metni'nden sadece prospektüs bölümü ayrılmalı
+            print(f"[analyze] Metin {len(kt_metni)} karakter, ilk {config.MAX_KT_KARAKTER} karakteri kullanılıyor.", file=sys.stderr)
         kt_metni = kt_metni.strip()[:config.MAX_KT_KARAKTER]
 
         sistem, talimat = _prompt_yukle(config.PROMPT_KARTLAR)
@@ -347,6 +399,7 @@ def analiz_detayli(kt_metni: str) -> tuple[dict, dict]:
         analiz = ham.get("analiz") if isinstance(ham.get("analiz"), dict) else {}
         detay = {
             "dil": dil,
+            "kirpildi": kirpildi,
             "cikti_dili": _cikti_dili(ham),
             "uyari_sayisi": len(analiz.get("uyarilar") or []),
             "belirsiz_sayisi": len(analiz.get("belirsiz_noktalar") or []),
@@ -363,7 +416,9 @@ def analiz_detayli(kt_metni: str) -> tuple[dict, dict]:
         sonuc, dogrulama_detay = dogrula(sonuc, kt_metni)
         return sonuc, {**detay, **dogrulama_detay}
     except Exception as e:
-        return schema.hata(_mesaj("hata", dil).format(e)), {"dil": dil}
+        # Kullanıcıya sade mesaj; teknik ayrıntı terminale (Streamlit konsolu) ve ölçüm detayına
+        print(f"[analyze] {type(e).__name__}: {e}", file=sys.stderr)
+        return schema.hata(_mesaj("kota" if isinstance(e, KotaHatasi) else "hata", dil)), {"dil": dil, "hata_detay": str(e)}
 
 
 def analyze(kt_metni: str) -> dict:
