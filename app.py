@@ -313,7 +313,7 @@ def speech_text(result: dict) -> str:
 def read_aloud(text: str) -> None:
     """Read and Stop buttons using the browser's speech synthesis (no data leaves the browser)."""
     payload = json.dumps(text).replace("</", "<\\/")
-    components.html(
+    embed_html(
         f"""
 <style>
   body {{ margin: 0; font-family: 'Atkinson Hyperlegible', 'Segoe UI', Arial, sans-serif; }}
@@ -367,7 +367,20 @@ def read_aloud(text: str) -> None:
 </script>
 """,
         height=66,
+        alt="Read aloud controls",
     )
+
+
+def embed_html(code: str, height: int, alt: str) -> None:
+    """Show HTML with scripts in an iframe.
+
+    Newer Streamlit deprecates components.html in favour of st.iframe; older
+    versions only have components.html.
+    """
+    if hasattr(st, "iframe"):
+        st.iframe(code, height=height, alt=alt)
+    else:
+        components.html(code, height=height)
 
 
 def print_html(result: dict) -> str:
@@ -450,7 +463,7 @@ def show_result(result: dict) -> None:
         read_aloud(speech_text(result))
     with keep:
         st.download_button("🖨 Printable card", data=print_html(result), file_name=card_file_name(result),
-                           mime="text/html", key="print_card", use_container_width=True)
+                           mime="text/html", key="print_card", width="stretch")
 
     html_cards = "".join(card_html(key, title, icon, items) for key, title, icon, items in _items(result))
     st.markdown(html_cards, unsafe_allow_html=True)
@@ -510,7 +523,7 @@ def explain_tab() -> None:
     st.markdown('<p class="or">or</p>', unsafe_allow_html=True)
     pasted = st.text_area("Paste the leaflet text here", height=180, key="explain_text")
 
-    if st.button("Explain", type="primary", key="explain_button", use_container_width=True):
+    if st.button("Explain", type="primary", key="explain_button", width="stretch"):
         if upload and is_photo(upload):
             with st.spinner("Reading the photo…"):
                 text = extract_leaflet(leaflet_from_photo(upload.getvalue()))
@@ -535,7 +548,7 @@ def medicines_tab() -> None:
     uploads = st.file_uploader("Upload two or more leaflets (PDF)", type=["pdf"],
                                accept_multiple_files=True, key="medicines_pdfs")
 
-    if st.button("Check my medicines", type="primary", key="medicines_button", use_container_width=True):
+    if st.button("Check my medicines", type="primary", key="medicines_button", width="stretch"):
         if len(uploads or []) < 2:
             st.session_state.pop("medicines_result", None)
             notice("warn", "⚠️", "Please upload at least two leaflets.")
