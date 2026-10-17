@@ -230,8 +230,8 @@ def calistir(klasor: Path, onbellek: bool, bekle: float) -> None:
         if onbellek and cikti.exists():
             with open(cikti, encoding="utf-8") as f:
                 kayit = json.load(f)
-            # Hatalı kayıt (503, kota) önbellekten okunmaz; ilaç tekrar denenir
-            if "error" in kayit["sonuc"]:
+            # Hatalı kayıt (503, kota) veya doğrulayıcının çalışamadığı kayıt önbellekten okunmaz; ilaç tekrar denenir
+            if "error" in kayit["sonuc"] or not kayit.get("detay", {}).get("dogrulayici_calisti", True):
                 kayit = None
         if kayit is not None:
             sonuc, detay, sure = kayit["sonuc"], kayit.get("detay", {}), kayit["sure_sn"]
