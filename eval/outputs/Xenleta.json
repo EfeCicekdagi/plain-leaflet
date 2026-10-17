@@ -1,10 +1,99 @@
 {
   "sonuc": {
-    "error": "The AI service has reached its usage limit. Please try again later."
+    "drug_name": "Xenleta 600 mg film-coated tablets",
+    "cards": {
+      "what_for": [
+        {
+          "text": "Xenleta treats adult lung infections when other treatments are not suitable.",
+          "evidence": "Xenleta is an antibiotic medicine containing the active substance lefamulin. ... Xenleta is used to treat adults who have bacterial infections in the lung, also known as pneumonia, when other treatments for pneumonia are not considered to be suitable."
+        }
+      ],
+      "how_to_use": [
+        {
+          "text": "Take one 600-mg tablet every 12 hours for 5 days.",
+          "evidence": "The recommended dose is one 600-mg Xenleta tablet taken every 12 hours for 5 days."
+        },
+        {
+          "text": "Swallow the tablets whole with water.",
+          "evidence": "The tablets should be swallowed whole with water."
+        },
+        {
+          "text": "Take on an empty stomach, at least 1 hour before or 2 hours after meals.",
+          "evidence": "Xenleta should be taken on an empty stomach, at least 1 hour before or 2 hours after a meal."
+        },
+        {
+          "text": "Do not eat grapefruit or drink grapefruit juice while taking Xenleta.",
+          "evidence": "You must not eat grapefruit or drink grapefruit juice while on treatment with Xenleta as it might interact with Xenleta and increase side effects."
+        },
+        {
+          "text": "If you miss a dose, do not take a double dose to make up.",
+          "evidence": "Do not take a double dose to make up for a forgotten tablet. You should continue with your course from the next scheduled dose."
+        }
+      ],
+      "see_doctor_now": [
+        {
+          "text": "If you develop severe diarrhoea, speak to your doctor.",
+          "evidence": "If you develop severe diarrhoea during or after taking Xenleta tablets, talk to your doctor because you may need to stop your medicine, or you may need to take another medicine to treat the diarrhoea."
+        },
+        {
+          "text": "If your skin or eyes turn yellow, talk to your doctor.",
+          "evidence": "If you develop yellow skin (jaundice) or the white of your eyes turn yellow (scleral icterus), talk to your doctor because you may need to stop taking Xenleta or other medicines."
+        }
+      ],
+      "side_effects": [
+        {
+          "text": "Common side effects include low blood potassium, insomnia, headache, diarrhoea, and feeling sick.",
+          "evidence": "Common: may affect up to 1 in 10 people ... low potassium levels in your blood (hypokalaemia) ... difficulty sleeping (insomnia) ... headache ... diarrhoea ... feeling sick (nausea) or being sick (vomiting)"
+        },
+        {
+          "text": "Uncommon side effects include anaemia, dizziness, bowel inflammation, stomach pain, and thrush.",
+          "evidence": "Uncommon: may affect up to 1 in 100 people ... inflammation of the bowel causing diarrhoea (colitis) ... fungal (yeast) infection of the throat and mouth (thrush or candida infection) ... reduction in red blood cells (anaemia) ... dizziness ... stomach pain, pain in the abdomen or around the stomach"
+        }
+      ],
+      "storage": [
+        {
+          "text": "Keep this medicine out of the sight and reach of children.",
+          "evidence": "Keep this medicine out of the sight and reach of children."
+        },
+        {
+          "text": "This medicine does not require any special storage conditions.",
+          "evidence": "This medicine does not require any special storage conditions"
+        }
+      ]
+    },
+    "pharmacist_questions": [
+      "For how many days should I take these tablets?",
+      "Do any of my other daily medicines interact with Xenleta?",
+      "Should I avoid grapefruit while taking this medicine?",
+      "What should I do if I get diarrhoea during treatment?",
+      "Is Xenleta safe for me if I have liver or kidney problems?"
+    ],
+    "verification": {
+      "unsupported": [],
+      "confidence": "high"
+    }
   },
   "detay": {
     "dil": "en",
-    "hata_detay": "Model çağrısı başarısız: kota doldu (429), biraz sonra tekrar deneyin"
+    "kirpildi": false,
+    "cikti_dili": "en",
+    "uyari_sayisi": 8,
+    "belirsiz_sayisi": 3,
+    "soru_adayi_sayisi": 5,
+    "taslak_madde": 12,
+    "kod_elenen": 0,
+    "sayi_elenen": 0,
+    "llm_ilk_ret": 2,
+    "duzeltilen": 2,
+    "llm_elenen": 0,
+    "kriter_ret": {
+      "k1_no_added_info": 0,
+      "k2_same_meaning": 0,
+      "k3_condition_kept": 2,
+      "k4_same_numbers": 0
+    },
+    "reddedilenler": [],
+    "dogrulayici_calisti": true
   },
-  "sure_sn": 41.83616590499878
+  "sure_sn": 17.575394868850708
 }

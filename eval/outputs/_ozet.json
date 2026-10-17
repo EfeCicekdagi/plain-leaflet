@@ -411,9 +411,28 @@
       "ilac": "Xenleta",
       "dil": "en",
       "olcut": "Flesch",
-      "sure_sn": 41.8,
+      "sure_sn": 17.6,
       "okunabilirlik_kt": 45.2,
-      "error": "The AI service has reached its usage limit. Please try again later."
+      "drug_name": "Xenleta 600 mg film-coated tablets",
+      "okunabilirlik_sade": 64.86,
+      "kalan": 12,
+      "cikarilan": 0,
+      "kanit_dolu": 12,
+      "kanit_kt_de": 12,
+      "soru": 5,
+      "confidence": "high",
+      "kod_elenen": 0,
+      "sayi_elenen": 0,
+      "llm_elenen": 0,
+      "llm_ilk_ret": 2,
+      "duzeltilen": 2,
+      "kriter_ret": {
+        "k1_no_added_info": 0,
+        "k2_same_meaning": 0,
+        "k3_condition_kept": 2,
+        "k4_same_numbers": 0
+      },
+      "dogrulayici_calisti": true
     }
   ]
 }
