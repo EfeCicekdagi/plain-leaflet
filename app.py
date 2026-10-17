@@ -173,10 +173,15 @@ class _NotCached(Exception):
         self.value = value
 
 
+def is_explanation(result) -> bool:
+    """True for a usable analyze() result: has cards and no error."""
+    return isinstance(result, dict) and not result.get("error") and isinstance(result.get("cards"), dict)
+
+
 @st.cache_data(show_spinner=False)
 def _explain_cached(text: str) -> dict:
     result = analyze(text)
-    if not isinstance(result, dict) or result.get("error"):
+    if not is_explanation(result):
         raise _NotCached(result)
     return result
 
@@ -372,9 +377,17 @@ def card_file_name(result: dict) -> str:
 
 def show_result(result: dict) -> None:
     """Render the analyze() output as five cards and a question list."""
-    if not isinstance(result, dict) or not result or result.get("error"):
-        message = result.get("error") if isinstance(result, dict) else None
-        st.error(message or "Something went wrong. Please try again.")
+    if isinstance(result, dict) and result.get("error"):
+        st.error(result["error"])
+        return
+    if not is_explanation(result):
+        # Not the agreed format (e.g. another error key): never show empty
+        # cards, which would wrongly say the leaflet has no information
+        st.error("We could not explain this leaflet right now. Please try again later.")
+        details = [str(v) for v in result.values() if isinstance(v, str)] if isinstance(result, dict) else []
+        if details:
+            with st.expander("Details"):
+                st.write(details[0])
         return
 
     if result.get("drug_name"):
