@@ -1,0 +1,4 @@
+google-genai>=1.0
+streamlit>=1.30
+pypdf>=4.0
+python-dotenv>=1.0
