@@ -1,11 +1,11 @@
-"""analyze() çıktısının veri sözleşmesi. Sadece Kişi 1 değiştirir. Anahtarlar Kişi 2'nin app.py'si ile aynı (İngilizce).
+"""Data contract of the analyze() output. Only Person 1 changes it. The keys match Person 2's app.py (English).
 
-Kartlar KT ile aynı dildedir (Türkçe veya İngilizce). JSON anahtarları her zaman aynıdır.
+Cards are in the language of the leaflet (Turkish or English). The JSON keys are always the same.
 
 {
   "drug_name": "EXAMPLEDRUG 500 mg tablets",
   "cards": {
-    "what_for":       [{"text": "sade cümle", "evidence": "KT'den birebir alıntı"}],
+    "what_for":       [{"text": "plain sentence", "evidence": "verbatim quote from the leaflet"}],
     "how_to_use":     [...],
     "see_doctor_now": [...],
     "side_effects":   [...],
@@ -13,15 +13,15 @@ Kartlar KT ile aynı dildedir (Türkçe veya İngilizce). JSON anahtarları her 
   },
   "pharmacist_questions": ["...", "..."],
   "verification": {
-    "unsupported": ["kaynağı doğrulanamadığı için çıkarılan madde"],
+    "unsupported": ["item removed because its source could not be verified"],
     "confidence": "high | medium | low"
   }
 }
 
-Hata olursa sadece {"error": "kullanıcıya gösterilecek açıklama"} döner.
+On error it returns only {"error": "message to show the user"}.
 """
 
-# Kartların sırası arayüzdeki sırayla aynıdır
+# The card order is the order in the UI
 KARTLAR = ("what_for", "how_to_use", "see_doctor_now", "side_effects", "storage")
 
 KART_BASLIKLARI = {
@@ -32,7 +32,7 @@ KART_BASLIKLARI = {
     "storage": "Nasıl saklanır?",
 }
 
-# Arayüz İngilizce: kart başlıkları
+# Card titles for the English UI
 KART_BASLIKLARI_EN = {
     "what_for": "What is it for?",
     "how_to_use": "How do I take it?",
@@ -43,8 +43,8 @@ KART_BASLIKLARI_EN = {
 
 GUVEN_DEGERLERI = ("high", "medium", "low")
 
-MAX_MADDE = 5  # kart başına en fazla madde
-MAX_SORU = 5   # en fazla eczacı sorusu
+MAX_MADDE = 5  # most items per card
+MAX_SORU = 5   # most pharmacist questions
 
 
 def bos_sonuc(ilac_adi: str = "") -> dict:
@@ -65,7 +65,7 @@ def _yazi(deger) -> str:
 
 
 def normalize(ham: dict) -> dict:
-    """Modelden gelen JSON'u sözleşmeye uydurur: eksik alanı doldurur, fazlasını atar."""
+    """Fits the model's JSON to the contract: fills missing fields, drops extra ones."""
     sonuc = bos_sonuc(_yazi(ham.get("drug_name")))
 
     kartlar = ham.get("cards") if isinstance(ham.get("cards"), dict) else {}
@@ -94,8 +94,8 @@ def madde_sayisi(sonuc: dict) -> int:
     return sum(len(sonuc.get("cards", {}).get(kart, [])) for kart in KARTLAR)
 
 
-# ---------- Modelin cevap şemaları (Gemini response_schema, schema-first) ----------
-# Alan sırası (property_ordering) önemlidir: model önce "analysis" alanını (adım adım düşünme) yazar, sonra kartları.
+# ---------- Model answer schemas (Gemini response_schema, schema-first) ----------
+# Field order (property_ordering) matters: the model writes "analysis" (step-by-step reasoning) first, then the cards.
 
 def _nesne(alanlar: dict, sira: list[str]) -> dict:
     return {"type": "OBJECT", "properties": alanlar, "required": sira, "property_ordering": sira}

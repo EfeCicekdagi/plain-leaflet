@@ -1,6 +1,6 @@
-"""Kişi 1 kodunun testleri: analyze(), doğrulayıcı, kanıt ve sayı kontrolü, okunabilirlik, llm.ask().
+"""Tests for Person 1's code: analyze(), the verifier, the quote and number checks, readability, llm.ask().
 
-Model çağrılmaz (sahte LLM kullanılır), kota harcamaz. Repo kökünden:
+The model is not called (a fake LLM is used), so no quota is spent. From the repo root:
   python -m unittest discover -s tests -v
 """
 import json
@@ -16,7 +16,7 @@ import config  # noqa: E402
 from core import llm, pipeline, schema  # noqa: E402
 from eval import readability  # noqa: E402
 
-# Test için uydurulmuş, gerçek KT'lere benzeyen metin (PDF bozuklukları dahil: bölünmüş kelime, satır sonu tiresi, ligatür)
+# Made-up test text that looks like a real leaflet (including PDF damage: split words, line-end hyphens, ligatures)
 KT_TR = """KULLANMA TALİMATI
 TESTOL 500 mg tablet
 Ağızdan alınır.
@@ -68,12 +68,12 @@ def taslak(kartlar=None, kt_mi=True, sorular=("Can I take it with warfarin?",), 
 
 
 class SahteLLM:
-    """Hangi promptun geldiğini sistem metninden anlayıp senaryodaki cevabı verir; çağrıları kaydeder."""
+    """Tells from the system text which prompt arrived, returns the scripted answer and records the calls."""
 
     def __init__(self, taslaklar, reddet=lambda metin: False, duzelt=None, dogrulayici_cokecek=False):
-        self.taslaklar = list(taslaklar)  # her taslak çağrısında sıradaki (str ise ham metin döner)
-        self.reddet = reddet              # metin -> True ise doğrulayıcı k3'ü false yapar
-        self.duzelt = duzelt or {}        # eski metin -> yeni metin
+        self.taslaklar = list(taslaklar)  # the next one for each draft call (a str is returned as raw text)
+        self.reddet = reddet              # text -> True makes the verifier set k3 to false
+        self.duzelt = duzelt or {}        # old text -> new text
         self.dogrulayici_cokecek = dogrulayici_cokecek
         self.cagrilar = []
 
@@ -93,7 +93,7 @@ class SahteLLM:
         return json.dumps({"results": [
             {"id": m["id"], "reason": "-", "k1_no_added_info": True, "k2_same_meaning": True,
              "k3_condition_kept": not self.reddet(m["text"]), "k4_same_numbers": True,
-             "supported": True}  # model "true" dese bile kriter false ise kod reddetmeli
+             "supported": True}  # even if the model says true, the code must reject when a criterion is false
             for m in maddeler]})
 
     def turler(self):
@@ -109,15 +109,15 @@ class KanitKontroluTestleri(unittest.TestCase):
 
     def test_pdf_bozukluklari_tolere_edilir(self):
         self.assertEqual(self.skor("Keep this medicine out of the sight and reach of children."), 1.0)  # "K eep"
-        self.assertEqual(self.skor("Difficulty breathing"), 1.0)  # ligatür "ﬁ"
+        self.assertEqual(self.skor("Difficulty breathing"), 1.0)  # ligature "ﬁ"
         self.assertEqual(pipeline.kanit_skoru("TESTOL, hafif ve orta şiddetli ağrıların ve ateşin tedavisinde kullanılır.", KT_TR), 1.0)
         self.assertEqual(self.skor("Store below 25°C. Keep this medicine"), 1.0)
 
     def test_baslik_ve_madde_birlestirme(self):
         baslik = "Stop taking this medicine and go to hospital at once if you get:"
         self.assertEqual(self.skor(f"{baslik} ... Difficulty breathing"), 1.0)
-        self.assertEqual(self.skor(f"{baslik} Swelling of the face"), 1.0)  # ":" ile birleştirilmiş
-        self.assertEqual(self.skor(f"{baslik} • Swelling of the face"), 1.0)  # madde işaretiyle
+        self.assertEqual(self.skor(f"{baslik} Swelling of the face"), 1.0)  # joined with ":"
+        self.assertEqual(self.skor(f"{baslik} • Swelling of the face"), 1.0)  # with a bullet
 
     def test_gercek_basliga_eklenmis_uydurma_parca_reddedilir(self):
         self.assertEqual(self.skor("Stop taking this medicine and go to hospital at once if you get: ... Chest pain"), 0.0)
@@ -125,7 +125,7 @@ class KanitKontroluTestleri(unittest.TestCase):
     def test_farkli_bolumlerden_parcalar_reddedilir(self):
         uzun = KT_EN + "\n" + "Other information about the medicine. " * 60 + "\nUnrelated section text here."
         self.assertEqual(pipeline.kanit_skoru("Store below 25°C. ... Unrelated section text here.", uzun), 0.0)
-        self.assertEqual(pipeline.kanit_skoru("Swelling of the face ... Testol is used to treat mild to moderate pain", uzun), 0.0)  # ters sıra
+        self.assertEqual(pipeline.kanit_skoru("Swelling of the face ... Testol is used to treat mild to moderate pain", uzun), 0.0)  # reverse order
 
     def test_kelime_degisikligi_reddedilir_yazim_hatasi_kabul(self):
         self.assertLess(self.skor("Testol is used to treat severe pain and fever, as described here."), config.KANIT_ESIK)
@@ -165,7 +165,7 @@ class DilTespitiTestleri(unittest.TestCase):
             ("KULLANMA TALİMATI. İLACI KULLANMADAN ÖNCE DİKKATLİCE OKUYUNUZ.", "tr"),
             ("If your face swells, go to hospital.", "en"),
             ("Tableti bir bardak su ile yutunuz.", "tr"),
-            # büyük harfli İngilizce + Türk üretici adı: Türkçe küçük harf kuralı "IF", "THIS" kelimelerini kaçırırdı
+            # upper-case English + a Turkish manufacturer name: the Turkish lower-case rule would miss "IF" and "THIS"
             ("IF THIS MEDICINE IS FOR YOU, TAKE IT WITH YOUR DOCTOR. Şirket: İlaç A.Ş.", "en"),
         ]:
             self.assertEqual(pipeline.dil_tespit(metin), beklenen, metin)
@@ -210,7 +210,7 @@ class SozlesmeTestleri(unittest.TestCase):
         for sema in (schema.KART_CEVAP_SEMASI, schema.DOGRULAYICI_CEVAP_SEMASI, schema.DUZELTME_CEVAP_SEMASI):
             gecerli = types.Schema.model_validate(sema)
             self.assertEqual(gecerli.property_ordering, sema["required"])
-        self.assertEqual(schema.KART_CEVAP_SEMASI["property_ordering"][0], "analysis")  # önce adım adım düşünme
+        self.assertEqual(schema.KART_CEVAP_SEMASI["property_ordering"][0], "analysis")  # step-by-step reasoning first
 
     def test_prompt_dosyalari(self):
         for yol, degiskenler in [(config.PROMPT_KARTLAR, ["{kt_metni}", "{dil_adi}"]),
@@ -224,7 +224,7 @@ class SozlesmeTestleri(unittest.TestCase):
 
 
 class AkisTestleri(unittest.TestCase):
-    """analyze() uçtan uca, sahte modelle."""
+    """analyze() end to end, with a fake model."""
 
     def calistir(self, sahte, kt=KT_EN):
         with mock.patch.object(pipeline, "ask", sahte), mock.patch.object(config, "USE_MOCK", False):
@@ -236,12 +236,12 @@ class AkisTestleri(unittest.TestCase):
                 "what_for": [madde("It treats pain and fever.", "Testol is used to treat mild to moderate pain and fever.")],
                 "how_to_use": [
                     madde("Take 1 or 2 tablets every 4 to 6 hours.", "Take one or two tablets every four to six hours as needed."),
-                    madde("Take 3 tablets at once.", "Do not take more than 8 tablets in 24 hours."),  # sayı tutmuyor
+                    madde("Take 3 tablets at once.", "Do not take more than 8 tablets in 24 hours."),  # numbers differ
                 ],
                 "see_doctor_now": [
                     madde("If it is hard to breathe, go to hospital.",
                           "Stop taking this medicine and go to hospital at once if you get: ... Difficulty breathing"),
-                    madde("Chest pain means hospital.", "Chest pain is a serious sign."),  # kanıt KT'de yok
+                    madde("Chest pain means hospital.", "Chest pain is a serious sign."),  # quote not in the leaflet
                 ],
             })],
             reddet=lambda m: m == "Take 1 or 2 tablets every 4 to 6 hours.",
@@ -255,8 +255,8 @@ class AkisTestleri(unittest.TestCase):
         self.assertEqual(detay["duzeltilen"], 1)
         self.assertEqual(sonuc["cards"]["how_to_use"][0]["text"], "Take 1 or 2 tablets every 4 to 6 hours, only when needed.")
         self.assertEqual(sorted(sonuc["verification"]["unsupported"]), ["Chest pain means hospital.", "Take 3 tablets at once."])
-        self.assertEqual(sonuc["verification"]["confidence"], "low")  # 5 taslak maddeden 2'si çıktı
-        self.assertEqual(schema.normalize(sonuc), sonuc)  # çıktı sözleşmeye uyar
+        self.assertEqual(sonuc["verification"]["confidence"], "low")  # 2 of 5 draft items were removed
+        self.assertEqual(schema.normalize(sonuc), sonuc)  # the output follows the contract
         for kart in schema.KARTLAR:
             for m in sonuc["cards"][kart]:
                 self.assertGreaterEqual(pipeline.kanit_skoru(m["evidence"], KT_EN), config.KANIT_ESIK)
@@ -274,7 +274,7 @@ class AkisTestleri(unittest.TestCase):
         sahte = SahteLLM([taslak({"storage": [madde("Store below 25 degrees.", "Store below 25°C.")]})])
         sonuc, _ = self.calistir(sahte)
         self.assertEqual(sonuc["verification"], {"unsupported": [], "confidence": "high"})
-        self.assertEqual(sahte.turler(), ["taslak", "dogrulayici"])  # ret yoksa düzeltme çağrılmaz
+        self.assertEqual(sahte.turler(), ["taslak", "dogrulayici"])  # no rejection, so no fix call
 
     def test_dogrulayici_cokerse_maddeler_kalir_guven_dusuk(self):
         sahte = SahteLLM([taslak({"storage": [madde("Store below 25 degrees.", "Store below 25°C.")]})], dogrulayici_cokecek=True)
@@ -346,7 +346,7 @@ class AkisTestleri(unittest.TestCase):
 
 
 class LLMTestleri(unittest.TestCase):
-    """llm.ask() hata yolları, sahte Gemini istemcisiyle."""
+    """llm.ask() error paths, with a fake Gemini client."""
 
     def setUp(self):
         self.yamalar = [mock.patch.object(llm.time, "sleep", lambda s: None),

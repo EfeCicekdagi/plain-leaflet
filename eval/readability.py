@@ -1,26 +1,26 @@
-"""Okunabilirlik skorları. Başka hiçbir dosyaya bağlı değildir.
+"""Readability scores. Depends on no other file.
 
-Türkçe - Ateşman:   Skor = 198.825 - 40.175 * (hece / kelime) - 2.610 * (kelime / cümle)
-                    Hece sayısı = sesli harf sayısı.
-İngilizce - Flesch: Skor = 206.835 - 1.015 * (kelime / cümle) - 84.6 * (hece / kelime)
-                    Hece sayısı = sesli harf grupları (sondaki sessiz "e" düşülür), kelime başına en az 1.
-İkisinde de yüksek skor = daha kolay metin, 0-100 arası.
-  90-100 çok kolay, 70-89 kolay, 50-69 orta, 30-49 zor, 0-29 çok zor
+Turkish - Ateşman: Score = 198.825 - 40.175 * (syllables / words) - 2.610 * (words / sentences)
+                   Syllables = number of vowels.
+English - Flesch:  Score = 206.835 - 1.015 * (words / sentences) - 84.6 * (syllables / words)
+                   Syllables = vowel groups (a silent final "e" is dropped), at least 1 per word.
+For both, a higher score = easier text, from 0 to 100.
+  90-100 very easy, 70-89 easy, 50-69 medium, 30-49 difficult, 0-29 very difficult
 """
 import re
 
 SESLI = set("aeıioöuüâîû")
 KELIME = re.compile(r"[a-zçğıöşüâîû]+")
-# Cümle sonu: . ! ? … veya satır başındaki madde işareti
+# Sentence end: . ! ? … or a bullet at the start of a line
 CUMLE_SONU = re.compile(r"[.!?…]+|\n\s*[•\-–*▪●○]\s+")
 
 
 def _hazirla(metin: str) -> tuple[str, list[str], list[str]]:
-    """(küçük harfli metin, kelimeler, cümleler)"""
+    """(lower-case text, words, sentences)"""
     metin = metin.replace("İ", "i").replace("I", "ı").lower()
-    metin = re.sub(r"(\d)[.,](\d)", r"\1\2", metin)  # 2.5 gibi sayılar cümleyi bölmesin
+    metin = re.sub(r"(\d)[.,](\d)", r"\1\2", metin)  # numbers such as 2.5 must not split a sentence
     cumleler = [c for c in CUMLE_SONU.split("\n" + metin) if KELIME.search(c)]
-    # Sesli harfi olmayan kısaltmalar (mg, ml) kelime sayılmaz
+    # Abbreviations without vowels (mg, ml) are not counted as words
     kelimeler = [k for k in KELIME.findall(metin) if SESLI.intersection(k)]
     return metin, kelimeler, cumleler
 
@@ -38,7 +38,7 @@ def atesman(metin: str) -> float:
 
 
 def _ingilizce_hece(kelime: str) -> int:
-    kelime = kelime.replace("ı", "i")  # Türkçe küçük harf dönüşümünden gelen ı
+    kelime = kelime.replace("ı", "i")  # the ı comes from the Turkish lower-casing above
     gruplar = len(re.findall(r"[aeiouy]+", kelime))
     if kelime.endswith("e") and not kelime.endswith(("le", "ee")) and gruplar > 1:
         gruplar -= 1
@@ -58,7 +58,7 @@ def flesch(metin: str) -> float:
 
 
 def okunabilirlik(metin: str, dil: str) -> tuple[float, str]:
-    """(skor, ölçüt adı). Türkçe için Ateşman, İngilizce için Flesch Reading Ease."""
+    """(score, metric name). Ateşman for Turkish, Flesch Reading Ease for English."""
     return (atesman(metin), "Ateşman") if dil == "tr" else (flesch(metin), "Flesch")
 
 

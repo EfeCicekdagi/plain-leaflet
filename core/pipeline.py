@@ -1,15 +1,15 @@
-"""analyze(): KT metni -> 5 sade kart, eczacıya sorular ve doğrulama sonucu.
+"""analyze(): leaflet text -> 5 plain cards, questions for the pharmacist and the verification result.
 
-KT Türkçe veya İngilizce olabilir; kartlar KT ile aynı dilde üretilir, "evidence" her zaman KT'nin kendi dilindedir.
+The leaflet can be Turkish or English; the cards are written in the leaflet's language, and "evidence" is always in the leaflet's own language.
 
-Akış (Draft -> Validate -> Finalize):
-  1. Taslak: Prompt 1 (prompts/01_kartlar.txt) kartları ve eczacı sorularını üretir.
-  2. Kod kontrolü: her "evidence" gerçekten KT metninde geçiyor mu? (difflib, eşik config.KANIT_ESIK)
-     Sayılar tutarlı mı? (kanıttaki sayılar KT'de, sade cümledeki sayılar kanıtta)
-  3. LLM kontrolü: Prompt 2 (prompts/02_dogrulayici.txt) her sade cümleyi 4 kritere göre alıntısıyla karşılaştırır.
-  4. Düzeltme: LLM'in reddettiği maddeler gerekçesiyle bir kez yeniden yazılır (03_duzeltme.txt), 2. ve 3. adımdan tekrar geçer.
-  5. Son hal: geçemeyen madde kartlardan çıkarılır, "unsupported" listesine yazılır, güven hesaplanır.
-     Son kontrol insandadır: her madde kaynağıyla gösterilir, belirsizlikler eczacıya soru olarak verilir.
+Flow (Draft -> Validate -> Finalize):
+  1. Draft: prompt 1 (prompts/01_kartlar.txt) writes the cards and pharmacist questions.
+  2. Code check: is every "evidence" really in the leaflet text? (difflib, threshold config.KANIT_ESIK)
+     Do the numbers match? (numbers in the quote are in the leaflet, numbers in the plain sentence are in the quote)
+  3. LLM check: prompt 2 (prompts/02_dogrulayici.txt) compares every plain sentence with its quote on 4 criteria.
+  4. Fix: items the LLM rejected are rewritten once using its reason (03_duzeltme.txt) and go through steps 2 and 3 again.
+  5. Final: items that still fail are removed from the cards and listed in "unsupported"; confidence is computed.
+     The last check is human: every item is shown with its source, open points become questions for the pharmacist.
 """
 import json
 import re
@@ -28,7 +28,7 @@ def _mock() -> dict:
         return json.load(f)
 
 
-# Kullanıcıya gösterilen mesajlar: KT'nin diline göre (dil anlaşılamazsa İngilizce, arayüz İngilizce)
+# Messages shown to the user, in the leaflet's language (English if unclear, as the UI is English)
 MESAJLAR = {
     "kisa": {
         "tr": "Metin çok kısa. Lütfen ilacın kutusundan çıkan kullanma talimatını yükleyin veya yapıştırın.",
@@ -57,9 +57,9 @@ _EN_KELIMELER = {"the", "and", "of", "to", "with", "your", "this", "you", "if", 
 
 
 def dil_tespit(metin: str) -> str:
-    """"tr" veya "en". Türkçeye özgü harflere (ğ ş ı İ, büyük halleri dahil) ve sık geçen kelimelere bakar.
-    Karar verilemezse "en" (arayüz İngilizce). Harfler küçültmeden önce sayılır: Türkçe kural ("I" -> "ı")
-    İngilizcedeki "If"i Türkçe gösterir, normal kural da büyük harfli Türkçeden "İ"yi siler."""
+    """"tr" or "en". Looks at letters only Turkish has (ğ ş ı İ, upper case included) and at common words.
+    If it cannot decide: "en" (the UI is English). Letters are counted before lower-casing: the Turkish rule ("I" -> "ı")
+    would make the English "If" look Turkish, and the normal rule would remove the "İ" from upper-case Turkish."""
     kelimeler = re.findall(r"[A-Za-zÇĞİÖŞÜçğıöşü]+", (metin or "")[:20000])
     tr = en = 0
     for k in kelimeler:
@@ -73,7 +73,7 @@ DIL_ADLARI = {"tr": "Turkish", "en": "English"}
 
 
 def _cikti_dili(ham: dict) -> str | None:
-    """Modelin yazdığı sade cümlelerin dili. Cümle yoksa None."""
+    """Language of the plain sentences the model wrote. None if there are no sentences."""
     kartlar = ham.get("cards") if isinstance(ham.get("cards"), dict) else {}
     metinler = [m.get("text", "") for k in kartlar.values() if isinstance(k, list) for m in k if isinstance(m, dict)]
     metin = " ".join(x for x in metinler if isinstance(x, str))
@@ -85,7 +85,7 @@ def _mesaj(anahtar: str, dil: str) -> str:
 
 
 def _prompt_yukle(yol) -> tuple[str, str]:
-    """Prompt dosyasını (sistem, talimat) olarak ikiye böler. Sistem: her çağrıda sabit kurallar. Talimat: bu çağrının görevi."""
+    """Splits a prompt file into (system, instruction). System: fixed rules for every call. Instruction: the task of this call."""
     with open(yol, encoding="utf-8") as f:
         metin = f.read()
     sistem, talimat = metin.split("### INSTRUCTION", 1)
@@ -93,7 +93,7 @@ def _prompt_yukle(yol) -> tuple[str, str]:
 
 
 def _veri_temizle(metin: str) -> str:
-    """Belge içinden sınır etiketlerini siler; belge kendi etiketini kapatıp talimat bölümüne sızamaz."""
+    """Removes the boundary tags from the document, so it cannot close its own tag and leak into the instructions."""
     return re.sub(r"</?\s*(leaflet|items)\s*>", " ", metin, flags=re.IGNORECASE)
 
 
@@ -101,7 +101,7 @@ def _json_coz(cevap: str) -> dict:
     try:
         veri = json.loads(cevap)
     except json.JSONDecodeError:
-        # Model JSON'un etrafına yazı eklediyse ilk { ile son } arasını dene
+        # If the model wrapped the JSON in text, try what is between the first { and the last }
         bas, son = cevap.find("{"), cevap.rfind("}")
         if bas == -1 or son <= bas:
             raise
@@ -112,7 +112,7 @@ def _json_coz(cevap: str) -> dict:
 
 
 def _ask_json(talimat: str, sistem: str, sema: dict, model: str | None = None) -> dict:
-    """Doğrula -> onar -> tekrar doğrula: cevap geçerli JSON değilse bir kez daha, uyararak sorar."""
+    """Validate -> repair -> validate again: if the answer is not valid JSON, asks once more with a warning."""
     try:
         return _json_coz(ask(talimat, sistem=sistem, sema=sema, model=model, dusunme=config.DUSUNME_BUTCESI))
     except (json.JSONDecodeError, ValueError):
@@ -120,16 +120,16 @@ def _ask_json(talimat: str, sistem: str, sema: dict, model: str | None = None) -
         return _json_coz(ask(onar, sistem=sistem, sema=sema, model=model, dusunme=config.DUSUNME_BUTCESI))
 
 
-# ---------- Kod kontrolü: kanıt KT metninde geçiyor mu? ----------
+# ---------- Code check: is the quote in the leaflet text? ----------
 
 def turkce_kucuk(metin: str) -> str:
     return metin.replace("İ", "i").replace("I", "ı").lower()
 
 
 def _sadelestir(metin: str) -> str:
-    """Karşılaştırma için: Türkçe küçük harf, tek tip tırnak ve tire, PDF satır sonu tirelerini birleştir, boşlukları teke indir."""
-    metin = unicodedata.normalize("NFKC", metin)  # PDF ligatürleri: "ﬂ" -> "fl"
-    metin = turkce_kucuk(metin).replace("̇", "").replace("­", "")  # "i̇" (i + nokta) ve yumuşak tire
+    """For comparison: Turkish lower case, one kind of quote and dash, join PDF line-end hyphens, collapse whitespace."""
+    metin = unicodedata.normalize("NFKC", metin)  # PDF ligatures: "ﬂ" -> "fl"
+    metin = turkce_kucuk(metin).replace("̇", "").replace("­", "")  # "i̇" (i + dot) and soft hyphen
     metin = re.sub(r"[‘’`´]", "'", metin)
     metin = re.sub(r"[“”«»]", '"', metin)
     metin = re.sub(r"[‐‑–—]", "-", metin)
@@ -139,26 +139,27 @@ def _sadelestir(metin: str) -> str:
 
 @lru_cache(maxsize=8)
 def _kt_hazirla(kt_metni: str) -> str:
-    """KT'nin karşılaştırmaya hazır, boşluksuz hali. Her madde için yeniden hesaplanmasın diye önbellekte tutulur."""
+    """The leaflet ready for comparison, without whitespace. Cached so it is not recomputed for every item."""
     return _sadelestir(kt_metni).replace(" ", "")
 
 
-_KISA_PARCA = 40       # bundan kısa parçalarda bulanık eşleşme yanıltıcı olur, sadece birebir eşleşme kabul edilir
-# " ... " ile birleştirilen parçalar KT'de sırayla ve bu kadar karakter (boşluksuz) içinde geçmeli: aynı bölüm.
-# Gerçek çıktılarda en geniş yayılım 474 karakterdi; farklı bölümlerden toplanan parçalar bundan çok uzaktır.
+_KISA_PARCA = 40       # fuzzy matching misleads on shorter parts, so only exact matches are accepted
+# Parts joined with " ... " must appear in the leaflet in order and within this many characters (no whitespace): the same section.
+# The widest spread in real outputs was 474 characters; parts collected from different sections are much further apart.
 _BOLUM_ARALIGI = 1000
 _AYIRICI = r"\s*(?:\.\.\.|…|:|•)\s*"
 
 
 def kanit_skoru(kanit: str, kt_metni: str) -> float:
-    """Kanıtın KT metnindeki en benzer parçaya benzerliği (0-1). Birebir geçiyorsa 1.0.
+    """Similarity (0-1) of the quote to the most similar part of the leaflet text. 1.0 if it appears verbatim.
 
-    Kanıt " ... " (veya ":", "•") ile birleştirilmiş birkaç parçaysa (başlık ... liste maddesi):
-    her parça ayrı aranır ve en düşük skor döner. Ayrıca parçalar KT'de sırayla ve birbirine yakın geçmelidir;
-    farklı bölümlerden toplanmış parçalar (örn. saklama cümlesi ... doz cümlesi) 0 alır.
-    ":" ile de bölünür: model başlık ile maddeyi ":" ile birleştirmiş olabilir; uzun gerçek bir başlığın
-    arkasına eklenmiş kısa, uydurma bir parça da böylece ayrı yakalanır.
-    Bilinen sınır: KT'de çok yerde geçen bir kelime ("Bulantı") yanlış başlığın altına bağlanırsa yakalanmayabilir.
+    If the quote is several parts joined with " ... " (or ":", "•") (heading ... list item):
+    each part is searched separately and the lowest score is returned. The parts must also appear in the
+    leaflet in order and close to each other; parts collected from different sections (e.g. a storage
+    sentence ... a dose sentence) score 0.
+    It also splits on ":": the model may join a heading and an item with ":"; this also catches a short,
+    invented part added after a long real heading.
+    Known limit: a word that appears in many places ("Nausea") may be missed if it is joined to the wrong heading.
     """
     parcalar = [p for p in re.split(_AYIRICI, kanit or "") if p.strip(" .:;,-•")]
     m = _kt_hazirla(kt_metni or "")
@@ -172,7 +173,7 @@ def kanit_skoru(kanit: str, kt_metni: str) -> float:
 
 
 def _ayni_bolumde(konumlar: list[list[int]]) -> bool:
-    """Her parça için bir konum seçilebiliyor mu: artan sırada ve ilk ile son arası en fazla _BOLUM_ARALIGI?"""
+    """Can one position be chosen for every part, in increasing order, with at most _BOLUM_ARALIGI from first to last?"""
     def ara(i: int, onceki: int, ilk: int) -> bool:
         if i == len(konumlar):
             return True
@@ -182,9 +183,9 @@ def _ayni_bolumde(konumlar: list[list[int]]) -> bool:
 
 
 def _parca_bul(parca: str, m: str) -> tuple[float, list[int]]:
-    """(benzerlik, KT'deki konumlar). m: _kt_hazirla() çıktısı."""
+    """(similarity, positions in the leaflet). m: output of _kt_hazirla()."""
     k_bosluklu = _sadelestir(parca)
-    k = k_bosluklu.replace(" ", "")  # boşluksuz: PDF'ten gelen bölünmüş kelimeler ("W ait", "K eep")
+    k = k_bosluklu.replace(" ", "")  # no whitespace: split words from the PDF ("W ait", "K eep")
     if not k:
         return 0.0, []
     konumlar, bulunan = [], m.find(k)
@@ -196,7 +197,7 @@ def _parca_bul(parca: str, m: str) -> tuple[float, list[int]]:
     if len(k_bosluklu) < _KISA_PARCA:
         return 0.0, []
 
-    # Bulanık karşılaştırma. Aday başlangıç noktaları: en uzun ortak parça + kanıtın birkaç parçasının birebir geçtiği yerler
+    # Fuzzy comparison. Candidate start points: the longest common block + places where a few pieces of the quote appear verbatim
     adaylar = set()
     eslesme = SequenceMatcher(None, m, k, autojunk=False).find_longest_match(0, len(m), 0, len(k))
     if eslesme.size:
@@ -245,14 +246,14 @@ def _kt_sayilari(kt_metni: str) -> frozenset[str]:
 
 
 def sayilar_tutarli(metin: str, kanit: str, kt_metni: str) -> bool:
-    """Kanıttaki her sayı KT'de, sade cümledeki her sayı kanıtta geçmeli. Doz/yaş/süre değişikliğini kodla yakalar."""
+    """Every number in the quote must be in the leaflet, and every number in the plain sentence in the quote. Catches changed doses, ages and durations in code."""
     return _sayilar(kanit) <= _kt_sayilari(kt_metni) and _sayilar(metin) <= _sayilar(kanit, kelimeler_dahil=True)
 
 
-# ---------- LLM kontrolü: sade cümle alıntıya sadık mı? ----------
+# ---------- LLM check: is the plain sentence faithful to its quote? ----------
 
 def _llm_kontrol(maddeler: list[dict]) -> dict[int, dict] | None:
-    """{id: sonuç} döndürür. Sonuçta 4 kriter ve "supported" var. Doğrulayıcı çağrısı başarısız olursa None."""
+    """Returns {id: result}. Each result has the 4 criteria and "supported". None if the verifier call fails."""
     if not maddeler:
         return {}
     sistem, talimat = _prompt_yukle(config.PROMPT_DOGRULAYICI)
@@ -269,14 +270,14 @@ def _llm_kontrol(maddeler: list[dict]) -> dict[int, dict] | None:
         kriterler = {k: s.get(k) for k in schema.DOGRULAYICI_KRITERLER}
         if not isinstance(s.get("supported"), bool) or not all(isinstance(v, bool) for v in kriterler.values()):
             continue
-        # Model "supported" dese bile bir kriter hayır ise madde reddedilir (karar kodda verilir)
+        # Even if the model says "supported", one failed criterion rejects the item (the decision is made in code)
         kararlar[s["id"]] = {**kriterler, "supported": s["supported"] and all(kriterler.values()),
                              "reason": s.get("reason", "")}
     return kararlar
 
 
 def _guven(kalan: int, cikarilan: int, dogrulayici_tam: bool, dogrulayici_calisti: bool = True) -> str:
-    # Hiçbir madde LLM doğrulayıcıdan geçmediyse güven düşüktür; arayüz "eczacınızla teyit edin" uyarısını gösterir
+    # If no item went through the LLM verifier, confidence is low; the UI shows a "check with your pharmacist" warning
     if kalan == 0 or not dogrulayici_calisti:
         return "low"
     oran = cikarilan / (kalan + cikarilan)
@@ -288,7 +289,7 @@ def _guven(kalan: int, cikarilan: int, dogrulayici_tam: bool, dogrulayici_calist
 
 
 def _duzelt(reddedilenler: list[dict]) -> dict[int, str]:
-    """Finalize: reddedilen maddeleri, doğrulayıcının gerekçesiyle bir kez yeniden yazdırır. {id: yeni metin}, hata olursa {}."""
+    """Finalize: has rejected items rewritten once using the verifier's reason. {id: new text}, {} on error."""
     sistem, talimat = _prompt_yukle(config.PROMPT_DUZELTME)
     girdi = _veri_temizle(json.dumps(reddedilenler, ensure_ascii=False, indent=1))
     try:
@@ -301,19 +302,19 @@ def _duzelt(reddedilenler: list[dict]) -> dict[int, str]:
 
 
 def dogrula(sonuc: dict, kt_metni: str) -> tuple[dict, dict]:
-    """Kod + LLM kontrolü, gerekirse bir düzeltme turu. Geçemeyen maddeleri kartlardan çıkarır, guven'i hesaplar.
-    (sonuc, detay) döndürür."""
+    """Code + LLM check, with one fix round if needed. Removes items that fail from the cards and computes confidence.
+    Returns (sonuc, detay)."""
     desteklenmeyen = list(sonuc["verification"]["unsupported"])
     detay = {"kod_elenen": 0, "sayi_elenen": 0, "llm_ilk_ret": 0, "duzeltilen": 0, "llm_elenen": 0,
              "kriter_ret": {k: 0 for k in schema.DOGRULAYICI_KRITERLER},
-             "reddedilenler": []}  # rapor için: hangi madde, hangi gerekçeyle çıkarıldı
+             "reddedilenler": []}  # for the report: which item was removed and why
 
     def reddet(madde: dict, kontrol: str, neden: str) -> None:
         desteklenmeyen.append(madde["text"])
         detay["reddedilenler"].append({**madde, "kontrol": kontrol, "reason": neden})
 
-    # 1) Kod kontrolü
-    adaylar = []  # (sıra, kart, madde); sıra kartlardaki ilk yerini korumak için
+    # 1) Code check
+    adaylar = []  # (order, card, item); order keeps the item's original place in the cards
     for kart in schema.KARTLAR:
         for madde in sonuc["cards"][kart]:
             if not madde["evidence"] or kanit_skoru(madde["evidence"], kt_metni) < config.KANIT_ESIK:
@@ -325,15 +326,15 @@ def dogrula(sonuc: dict, kt_metni: str) -> tuple[dict, dict]:
             else:
                 adaylar.append((len(adaylar), kart, madde))
 
-    # 2) LLM kontrolü (sadece kod kontrolünü geçenler)
+    # 2) LLM check (only items that passed the code check)
     kararlar = _llm_kontrol([{"id": i, "text": m["text"], "evidence": m["evidence"]} for i, _, m in adaylar])
     dogrulayici_tam = kararlar is not None and len(kararlar) == len(adaylar)
     detay["dogrulayici_calisti"] = kararlar is not None
 
-    kalanlar, ilk_ret = [], []  # ilk_ret: (sıra, kart, madde, karar)
+    kalanlar, ilk_ret = [], []  # ilk_ret: (order, card, item, decision)
     for sira, kart, madde in adaylar:
         karar = (kararlar or {}).get(sira)
-        # Doğrulayıcı çalışmadıysa veya bu maddeye cevap vermediyse madde kalır, güven düşürülür
+        # If the verifier did not run or did not answer for this item, the item stays and confidence is lowered
         if karar is not None and not karar["supported"]:
             ilk_ret.append((sira, kart, madde, karar))
             for k in schema.DOGRULAYICI_KRITERLER:
@@ -342,7 +343,7 @@ def dogrula(sonuc: dict, kt_metni: str) -> tuple[dict, dict]:
             kalanlar.append((sira, kart, madde))
     detay["llm_ilk_ret"] = len(ilk_ret)
 
-    # 3) Düzeltme (Finalize): reddedilenler gerekçeleriyle bir kez yeniden yazılır, sonra aynı kontrollerden tekrar geçer
+    # 3) Fix (Finalize): rejected items are rewritten once using their reason, then go through the same checks again
     duzeltilmis = {}
     if config.DUZELTME_ACIK and ilk_ret:
         yeni = _duzelt([{"id": s, "text": m["text"], "evidence": m["evidence"], "reason": k["reason"]} for s, _, m, k in ilk_ret])
@@ -371,10 +372,10 @@ def dogrula(sonuc: dict, kt_metni: str) -> tuple[dict, dict]:
     return sonuc, detay
 
 
-# ---------- Ana fonksiyon ----------
+# ---------- Main function ----------
 
 def analiz_detayli(kt_metni: str) -> tuple[dict, dict]:
-    """analyze() ile aynı sonucu ve ölçüm için ara bilgileri döndürür. Hiçbir zaman hata fırlatmaz."""
+    """Returns the same result as analyze() plus intermediate details for the evaluation. Never raises."""
     if config.USE_MOCK:
         return _mock(), {}
 
@@ -383,14 +384,14 @@ def analiz_detayli(kt_metni: str) -> tuple[dict, dict]:
         if not isinstance(kt_metni, str) or len(kt_metni.strip()) < config.MIN_KT_KARAKTER:
             return schema.hata(_mesaj("kisa", dil)), {}
         kirpildi = len(kt_metni.strip()) > config.MAX_KT_KARAKTER
-        if kirpildi:  # EMA'nın tam ürün belgesi gibi: önce kt_metni'nden sadece prospektüs bölümü ayrılmalı
+        if kirpildi:  # e.g. a full EMA product document: only the package leaflet part should be passed in
             print(f"[analyze] Metin {len(kt_metni)} karakter, ilk {config.MAX_KT_KARAKTER} karakteri kullanılıyor.", file=sys.stderr)
         kt_metni = kt_metni.strip()[:config.MAX_KT_KARAKTER]
 
         sistem, talimat = _prompt_yukle(config.PROMPT_KARTLAR)
         talimat = talimat.replace("{dil_adi}", DIL_ADLARI[dil]).replace("{kt_metni}", _veri_temizle(kt_metni))
         ham = _ask_json(talimat, sistem, schema.KART_CEVAP_SEMASI)
-        # Çıktı kontrolü: kartlar KT ile aynı dilde mi? Değilse bir kez uyararak tekrar sor
+        # Output check: are the cards in the leaflet's language? If not, ask once more with a warning
         if _cikti_dili(ham) not in (None, dil):
             uyari = (f"\n\nIMPORTANT: Your previous answer was not in {DIL_ADLARI[dil]}. "
                      f"Write every \"text\" and question in {DIL_ADLARI[dil]}.")
@@ -416,7 +417,7 @@ def analiz_detayli(kt_metni: str) -> tuple[dict, dict]:
         sonuc, dogrulama_detay = dogrula(sonuc, kt_metni)
         return sonuc, {**detay, **dogrulama_detay}
     except Exception as e:
-        # Kullanıcıya sade mesaj; teknik ayrıntı terminale (Streamlit konsolu) ve ölçüm detayına
+        # A plain message for the user; technical details go to the terminal (Streamlit console) and the evaluation details
         print(f"[analyze] {type(e).__name__}: {e}", file=sys.stderr)
         return schema.hata(_mesaj("kota" if isinstance(e, KotaHatasi) else "error", dil)), {"dil": dil, "hata_detay": str(e)}
 

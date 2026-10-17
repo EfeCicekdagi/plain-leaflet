@@ -1,15 +1,15 @@
-"""Ölçüm scripti: KT'ler üzerinde analyze() (ara bilgileriyle: analiz_detayli) çalıştırır ve eval/results.md tablosunu yazar.
-results.md İngilizce yazılır (rapor İngilizce).
+"""Evaluation script: runs analyze() (with intermediate details: analiz_detayli) on the leaflets and writes the eval/results.md tables.
+results.md is written in English (the report is in English).
 
-Kullanım (repo kökünden):
-  python -m eval.run_eval                        # data/kt/txt/*.txt üzerinde çalışır
-  python -m eval.run_eval --klasor data/samples  # başka klasör
-  python -m eval.run_eval --onbellek             # eval/outputs/ altında başarılı çıktısı olan ilaçlar için modeli tekrar çağırmaz (hatalılar tekrar denenir)
-  python -m eval.run_eval --sadakat              # elle doldurulan eval/sadakat_kontrol.csv'den yüzdeyi hesaplar, results.md'yi günceller
+Usage (from the repo root):
+  python -m eval.run_eval                        # runs on data/kt/txt/*.txt
+  python -m eval.run_eval --klasor data/samples  # another folder
+  python -m eval.run_eval --onbellek             # does not call the model again for medicines with a successful output in eval/outputs/ (failed ones are retried)
+  python -m eval.run_eval --sadakat              # computes the percentage from the labelled eval/sadakat_kontrol.csv and updates results.md
 
-Elle sadakat kontrolü: ilk çalıştırma eval/sadakat_kontrol.csv dosyasını yazar (ilaç başına 3 rastgele madde).
-"sadik" sütununa E (evet) veya H (hayır) yazılır, sonra --sadakat ile tekrar çalıştırılır.
-CSV virgülle ayrılmıştır; Türkçe Excel tek sütunda açarsa Google Sheets veya Numbers ile açın.
+Faithfulness check: the first run writes eval/sadakat_kontrol.csv (3 random items per medicine).
+Write E (yes) or H (no) in the "sadik" column, then run again with --sadakat.
+The CSV is comma-separated; if a Turkish Excel opens it in one column, use Google Sheets or Numbers.
 """
 import argparse
 import csv
@@ -33,8 +33,8 @@ CIKTILAR = EVAL / "outputs"
 OZET = CIKTILAR / "_ozet.json"
 SADAKAT_CSV = EVAL / "sadakat_kontrol.csv"
 SONUCLAR = EVAL / "results.md"
-SADAKAT_ORNEK = 3  # ilaç başına elle kontrol edilecek madde
-# Sadakat etiketlerini kim koydu; rapora aynen yazılır. Bir insan etiketlerse bunu değiştirin.
+SADAKAT_ORNEK = 3  # items per medicine for the faithfulness check
+# Who labelled the faithfulness sample; written to the report as is. Update it when the labels change hands.
 SADAKAT_KONTROL_EDEN = ("labelled by Claude (Anthropic), an AI model independent of the Gemini pipeline, "
                         "and reviewed by a team member (Efe Çiçekdağı); a second review by GPT (OpenAI) "
                         "changed 3 labels from E to H, and the team accepted the changes")
@@ -63,7 +63,7 @@ def olc(ad: str, kt_metni: str, sonuc: dict, detay: dict, sure: float) -> dict:
         "okunabilirlik_sade": okunabilirlik(sade_metin(sonuc), dil)[0],
         "kalan": kalan,
         "cikarilan": cikarilan,
-        # Bağımsız tekrar kontrol: son çıktıdaki her kanıt KT'de gerçekten var mı?
+        # Independent re-check: is every quote in the final output really in the leaflet?
         "kanit_dolu": sum(1 for m in maddeler if m["evidence"]),
         "kanit_kt_de": sum(1 for m in maddeler if kanit_skoru(m["evidence"], kt_metni) >= config.KANIT_ESIK),
         "soru": len(sonuc["pharmacist_questions"]),
@@ -93,7 +93,7 @@ def sadakat_ornegi_yaz(sonuclar: dict[str, dict], tohum: int = 42) -> None:
 
 
 def sadakat_oku() -> tuple[int, int] | None:
-    """(sadık, işaretlenen) döndürür. CSV yoksa veya hiç işaretlenmemişse None."""
+    """Returns (faithful, labelled). None if the CSV does not exist or has no labels."""
     if not SADAKAT_CSV.exists():
         return None
     with open(SADAKAT_CSV, encoding="utf-8-sig") as f:
@@ -236,14 +236,14 @@ def calistir(klasor: Path, onbellek: bool, bekle: float) -> None:
         if onbellek and cikti.exists():
             with open(cikti, encoding="utf-8") as f:
                 kayit = json.load(f)
-            # Hatalı kayıt (503, kota) veya doğrulayıcının çalışamadığı kayıt önbellekten okunmaz; ilaç tekrar denenir
+            # A saved error (503, quota) or a result whose verifier did not run is not reused; the medicine is retried
             if "error" in kayit["sonuc"] or not kayit.get("detay", {}).get("dogrulayici_calisti", True):
                 kayit = None
         if kayit is not None:
             sonuc, detay, sure = kayit["sonuc"], kayit.get("detay", {}), kayit["sure_sn"]
         else:
             if i > 1 and bekle:
-                time.sleep(bekle)  # ücretsiz kota dakikadaki istek sayısını sınırlıyor
+                time.sleep(bekle)  # the free quota limits requests per minute
             bas = time.time()
             sonuc, detay = analiz_detayli(kt_metni)
             sure = time.time() - bas
