@@ -3,6 +3,7 @@
 API testi:  python -m core.llm
 """
 import os
+import sys
 import time
 
 from google import genai
@@ -28,6 +29,18 @@ def _istemci() -> genai.Client:
 
 
 def _uret(model: str, contents, ayar: types.GenerateContentConfig) -> str:
+    """_uret_tek; ana model yoğunluk/kota yüzünden başarısız olursa config.YEDEK_MODEL ile bir kez daha."""
+    try:
+        return _uret_tek(model, contents, ayar)
+    except RuntimeError:
+        yedek = config.YEDEK_MODEL
+        if not yedek or yedek == model or not os.getenv("GEMINI_API_KEY", "").strip():
+            raise
+        print(f"[llm] {model} başarısız, yedek model deneniyor: {yedek}", file=sys.stderr)
+        return _uret_tek(yedek, contents, ayar)
+
+
+def _uret_tek(model: str, contents, ayar: types.GenerateContentConfig) -> str:
     """Tek çağrı. Hata olursa config.LLM_RETRY kez tekrar dener; kota hatasında (429) daha uzun bekler."""
     istemci = _istemci()  # anahtar yoksa tekrar denemeden hemen hata
     son_hata, kota = None, False

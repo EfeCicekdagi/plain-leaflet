@@ -388,8 +388,36 @@ class LLMTestleri(unittest.TestCase):
 
     def test_kota_iki_kez_kota_hatasi(self):
         self.istemci(429, 429)
-        with self.assertRaises(llm.KotaHatasi):
+        with mock.patch.object(config, "YEDEK_MODEL", ""), self.assertRaises(llm.KotaHatasi):
             llm.ask("p")
+
+    @staticmethod
+    def yogun():
+        from google.genai import errors
+        return errors.ServerError(503, {"error": {"code": 503, "message": "high demand", "status": "UNAVAILABLE"}})
+
+    def test_yogunlukta_yedek_model(self):
+        i = self.istemci(self.yogun(), self.yogun(), '{"a": 1}')
+        with mock.patch.object(config, "YEDEK_MODEL", "yedek-model"):
+            self.assertEqual(llm.ask("p"), '{"a": 1}')
+        self.assertEqual([c[0] for c in i.cagrilar], [config.MODEL_NAME, config.MODEL_NAME, "yedek-model"])
+
+    def test_kota_dolunca_yedek_model(self):
+        i = self.istemci(429, 429, '{"a": 1}')
+        with mock.patch.object(config, "YEDEK_MODEL", "yedek-model"):
+            self.assertEqual(llm.ask("p"), '{"a": 1}')
+        self.assertEqual(i.cagrilar[-1][0], "yedek-model")
+
+    def test_yedek_de_basarisizsa_hata(self):
+        self.istemci(429, 429, 429, 429)
+        with mock.patch.object(config, "YEDEK_MODEL", "yedek-model"), self.assertRaises(llm.KotaHatasi):
+            llm.ask("p")
+
+    def test_gecersiz_anahtarda_yedek_denenmez(self):
+        i = self.istemci(403)
+        with mock.patch.object(config, "YEDEK_MODEL", "yedek-model"), self.assertRaises(RuntimeError):
+            llm.ask("p")
+        self.assertEqual(len(i.cagrilar), 1)
 
     def test_sema_reddedilirse_semasiz_denenir(self):
         i = self.istemci(400, '{"a": 1}')

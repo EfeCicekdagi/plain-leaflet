@@ -4,7 +4,7 @@ results.md İngilizce yazılır (rapor İngilizce).
 Kullanım (repo kökünden):
   python -m eval.run_eval                        # data/kt/txt/*.txt üzerinde çalışır
   python -m eval.run_eval --klasor data/samples  # başka klasör
-  python -m eval.run_eval --onbellek             # eval/outputs/ altında çıktısı olan ilaçlar için modeli tekrar çağırmaz
+  python -m eval.run_eval --onbellek             # eval/outputs/ altında başarılı çıktısı olan ilaçlar için modeli tekrar çağırmaz (hatalılar tekrar denenir)
   python -m eval.run_eval --sadakat              # elle doldurulan eval/sadakat_kontrol.csv'den yüzdeyi hesaplar, results.md'yi günceller
 
 Elle sadakat kontrolü: ilk çalıştırma eval/sadakat_kontrol.csv dosyasını yazar (ilaç başına 3 rastgele madde).
@@ -226,9 +226,14 @@ def calistir(klasor: Path, onbellek: bool, bekle: float) -> None:
         with open(dosya, encoding="utf-8") as f:
             kt_metni = f.read()
         cikti = CIKTILAR / f"{ad}.json"
+        kayit = None
         if onbellek and cikti.exists():
             with open(cikti, encoding="utf-8") as f:
                 kayit = json.load(f)
+            # Hatalı kayıt (503, kota) önbellekten okunmaz; ilaç tekrar denenir
+            if "error" in kayit["sonuc"]:
+                kayit = None
+        if kayit is not None:
             sonuc, detay, sure = kayit["sonuc"], kayit.get("detay", {}), kayit["sure_sn"]
         else:
             if i > 1 and bekle:

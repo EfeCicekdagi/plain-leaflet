@@ -84,15 +84,22 @@ not use the model. Photo upload needs a key.
 
 ### Free quota
 
-One explanation makes 2 to 6 model calls and takes about 30 seconds. Results are
-cached per leaflet, so opening the same leaflet again is free. The free daily
-quota is small; record the demo in advance.
+One explanation makes 2 to 6 model calls and usually takes under a minute.
+Results are cached per leaflet, so opening the same leaflet again is free. The
+free daily quota is small; record the demo in advance.
+
+The default model is `gemini-3.6-flash`. If it fails because it is busy (503) or
+out of quota (429), the same call is retried once with `gemini-3.5-flash`; the
+free quota is counted per model. Both can be changed in `.env`
+(`GEMINI_MODEL`, `GEMINI_YEDEK_MODEL`). On 17 October 2026, `gemini-3.8-flash`
+kept single calls waiting 77 to 151 seconds under high demand, while
+`gemini-3.6-flash` explained the same leaflet in 21 seconds.
 
 ## Tests and evaluation
 
 ```bash
 python -m core.llm                       # checks the API key (1 model call)
-python -m unittest discover -s tests     # 40 tests, no model calls
+python -m unittest discover -s tests     # 44 tests, no model calls
 ```
 
 The evaluation script runs the full pipeline on every leaflet text in a folder

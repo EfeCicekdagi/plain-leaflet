@@ -8,7 +8,11 @@ KOK = Path(__file__).resolve().parent
 load_dotenv(KOK / ".env")
 
 # Model
-MODEL_NAME = os.getenv("GEMINI_MODEL", "gemini-3.8-flash")
+# gemini-3.8-flash 17 Ekim'de yoğunluktan dolayı tek çağrıda 77-151 sn bekletti; 3.6-flash aynı KT'yi 21 sn'de, daha yüksek güvenle işledi
+MODEL_NAME = os.getenv("GEMINI_MODEL", "gemini-3.6-flash")
+# Ana model 503 (yoğunluk) veya 429 (kota) ile başarısız olursa aynı çağrı bu modelle bir kez daha denenir.
+# Ücretsiz kota model başına ayrı olduğu için kota dolunca da işe yarar. Boş bırakılırsa kapalı.
+YEDEK_MODEL = os.getenv("GEMINI_YEDEK_MODEL", "gemini-3.5-flash").strip()
 # Doğrulayıcı için ayrı model seçilebilir (örn. daha ucuz/hızlı gemini-3.5-flash-lite). Bulunamazsa MODEL_NAME kullanılır.
 DOGRULAYICI_MODEL = os.getenv("GEMINI_DOGRULAYICI_MODEL", MODEL_NAME)
 TEMPERATURE = 0.0      # greedy decoding: tıbbi metinde yaratıcılık değil tutarlılık istenir

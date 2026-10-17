@@ -536,7 +536,8 @@ def explain_tab() -> None:
             notice("warn", "⚠️", "We could not read any text. Please upload a clear PDF or photo, "
                                  "or paste the leaflet text.")
         else:
-            with st.spinner("Reading the leaflet… This can take about 30 seconds."):
+            with st.spinner("Reading and checking the leaflet… This usually takes under a minute, "
+                            "longer when the service is busy. Please keep this page open."):
                 st.session_state["explain_result"] = explain(text)
 
     if "explain_result" in st.session_state:
