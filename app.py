@@ -5,12 +5,16 @@ Nothing is written to disk; uploads and results live only in the session
 (st.cache_data keeps them in memory).
 """
 
+import datetime
 import html
+import json
+import re
 from pathlib import Path
 
 import streamlit as st
+import streamlit.components.v1 as components
 
-from core.inputs import pdf_to_text
+from core.inputs import image_to_text, pdf_to_text
 from core.pipeline import analyze
 from safety.interactions import check_interactions
 from safety.sections import extract_leaflet
@@ -96,6 +100,12 @@ html, body, .stApp, [data-testid="stMarkdownContainer"], p, li, h1, h2, h3, smal
 .stTextArea textarea { border: 2px solid var(--line); background: var(--card); }
 .stButton button { min-height: 3rem; border-radius: 12px; }
 .stButton button p { font-size: 1.15rem; font-weight: 700; }
+.stDownloadButton button {
+    min-height: 58px; border-radius: 12px; border: 2px solid var(--primary);
+    background: var(--card); color: var(--primary);
+}
+.stDownloadButton button p { font-size: 20px; font-weight: 700; }
+.stDownloadButton button:hover { background: var(--blue-bg); color: var(--primary); border-color: var(--primary); }
 [data-testid="stWidgetLabel"] p { font-size: 1rem; font-weight: 700; color: var(--ink); }
 .stButton button[kind="primary"] { background: var(--primary); border-color: var(--primary); }
 .or { text-align: center; color: var(--muted); font-weight: 700; margin: 0.3rem 0; }
@@ -156,18 +166,18 @@ html, body, .stApp, [data-testid="stMarkdownContainer"], p, li, h1, h2, h3, smal
 """
 
 
-class _ErrorResult(Exception):
-    """Raised inside cached functions so error results are not cached."""
+class _NotCached(Exception):
+    """Raised inside cached functions so failed results are not cached."""
 
-    def __init__(self, result: dict):
-        self.result = result
+    def __init__(self, value):
+        self.value = value
 
 
 @st.cache_data(show_spinner=False)
 def _explain_cached(text: str) -> dict:
     result = analyze(text)
     if not isinstance(result, dict) or result.get("error"):
-        raise _ErrorResult(result)
+        raise _NotCached(result)
     return result
 
 
@@ -175,14 +185,34 @@ def explain(text: str) -> dict:
     """analyze() with caching, so the same leaflet never costs a second model call."""
     try:
         return _explain_cached(text)
-    except _ErrorResult as e:
-        return e.result if isinstance(e.result, dict) else {}
+    except _NotCached as e:
+        return e.value if isinstance(e.value, dict) else {}
 
 
 @st.cache_data(show_spinner=False)
 def leaflet_from_pdf(data: bytes) -> str:
     """Return leaflet text from PDF bytes, or "" if it cannot be read."""
     return extract_leaflet(pdf_to_text(data))
+
+
+@st.cache_data(show_spinner=False)
+def _photo_cached(data: bytes) -> str:
+    text = image_to_text(data)
+    if not text:
+        raise _NotCached("")
+    return text
+
+
+def leaflet_from_photo(data: bytes) -> str:
+    """Return leaflet text read from a photo (one model call), or "" on failure."""
+    try:
+        return _photo_cached(data)
+    except _NotCached:
+        return ""
+
+
+def is_photo(upload) -> bool:
+    return Path(upload.name).suffix.lower() in {".png", ".jpg", ".jpeg", ".webp"}
 
 
 def drug_label(upload) -> str:
@@ -221,6 +251,125 @@ def card_html(key: str, title: str, icon: str, items: list) -> str:
             f'<h3>{esc(title)}</h3></div>{body}</div>')
 
 
+def _items(result: dict):
+    """Yield (key, title, icon, [plain sentences]) for each card, in display order."""
+    cards = result.get("cards") if isinstance(result.get("cards"), dict) else {}
+    for key, title, icon in CARDS:
+        items = [i for i in cards.get(key) or [] if isinstance(i, dict) and i.get("text")]
+        yield key, title, icon, items
+
+
+def speech_text(result: dict) -> str:
+    """Everything on the result screen as one text for read-aloud."""
+    parts = [result.get("drug_name") or "Your medicine"]
+    for _, title, _, items in _items(result):
+        if items:
+            parts.append(title.rstrip("…"))
+            parts.extend(i["text"] for i in items)
+    questions = [q for q in result.get("pharmacist_questions") or [] if q]
+    if questions:
+        parts.append("Questions for my pharmacist.")
+        parts.extend(questions)
+    return " ".join(p if p.endswith((".", "?", "!")) else p + "." for p in parts)
+
+
+def read_aloud(text: str) -> None:
+    """Read and Stop buttons using the browser's speech synthesis (no data leaves the browser)."""
+    payload = json.dumps(text).replace("</", "<\\/")
+    components.html(
+        f"""
+<style>
+  body {{ margin: 0; font-family: 'Atkinson Hyperlegible', 'Segoe UI', Arial, sans-serif; }}
+  .row {{ display: flex; gap: 8px; }}
+  button {{
+    flex: 1; font: inherit; font-size: 20px; font-weight: 700; min-height: 58px;
+    border-radius: 12px; border: 2px solid #0b5394; background: #fff; color: #0b5394; cursor: pointer;
+  }}
+  button:hover, button:focus {{ background: #e8f0fa; outline: 3px solid #0b5394; }}
+  p {{ font-size: 18px; color: #4a5360; margin: 8px 0; }}
+</style>
+<div class="row" id="controls">
+  <button id="read">🔊 Read aloud</button>
+  <button id="stop">⏹ Stop</button>
+</div>
+<script>
+  const text = {payload};
+  const synth = window.speechSynthesis;
+  if (!synth) {{
+    document.getElementById("controls").outerHTML = "<p>Read aloud is not available in this browser.</p>";
+  }} else {{
+    document.getElementById("read").onclick = () => {{
+      synth.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "en-GB";
+      u.rate = 0.9;
+      const voice = synth.getVoices().find(v => v.lang === "en-GB");
+      if (voice) u.voice = voice;
+      synth.speak(u);
+    }};
+    document.getElementById("stop").onclick = () => synth.cancel();
+  }}
+</script>
+""",
+        height=66,
+    )
+
+
+def print_html(result: dict) -> str:
+    """A one-page card to print or keep, as a standalone HTML document."""
+    name = result.get("drug_name") or "My medicine"
+    verification = result.get("verification") if isinstance(result.get("verification"), dict) else {}
+    sections = []
+    for _, title, icon, items in _items(result):
+        if items:
+            rows = "".join(
+                f'<li>{esc(i["text"])}'
+                + (f'<div class="src">Leaflet: “{esc(i["evidence"])}”</div>' if i.get("evidence") else "")
+                + "</li>"
+                for i in items
+            )
+        else:
+            rows = '<li class="none">The leaflet does not say anything about this.</li>'
+        sections.append(f"<h2>{icon} {esc(title)}</h2><ul>{rows}</ul>")
+    questions = [q for q in result.get("pharmacist_questions") or [] if q]
+    if questions:
+        rows = "".join(f'<li>☐ {esc(q)}</li>' for q in questions)
+        sections.append(f'<h2>❓ Questions for my pharmacist</h2><ul class="questions">{rows}</ul>')
+    low = ('<p class="box">⚠️ Please check this with your pharmacist.</p>'
+           if verification.get("confidence") == "low" else "")
+    today = datetime.date.today().strftime("%d %B %Y")
+    return f"""<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>{esc(name)} – Plain Leaflet</title>
+<style>
+  body {{ font-family: 'Atkinson Hyperlegible', 'Segoe UI', Arial, sans-serif; font-size: 18pt; color: #000;
+         max-width: 800px; margin: 24px auto; padding: 0 16px; line-height: 1.4; }}
+  h1 {{ font-size: 26pt; margin: 8px 0 4px; }}
+  h2 {{ font-size: 19pt; margin: 20px 0 6px; border-bottom: 2px solid #000; }}
+  ul {{ padding-left: 24px; margin: 0; }}
+  li {{ margin: 6px 0; }}
+  .questions {{ list-style: none; padding-left: 0; }}
+  .src {{ font-size: 11pt; color: #333; }}
+  .none {{ color: #444; list-style: none; margin-left: -24px; }}
+  .box {{ border: 2px solid #000; border-radius: 8px; padding: 8px 12px; font-weight: bold; }}
+  footer {{ margin-top: 28px; font-size: 11pt; color: #333; }}
+  button {{ font-size: 16pt; padding: 8px 20px; }}
+  @media print {{ .noprint {{ display: none; }} body {{ margin: 0; }} }}
+</style></head><body>
+<p class="noprint"><button onclick="window.print()">🖨 Print</button></p>
+<p class="box">This card does not replace your doctor or pharmacist.</p>
+<h1>{esc(name)}</h1>
+{low}
+{"".join(sections)}
+<footer>Made with Plain Leaflet on {today}. Every sentence comes from the official package leaflet.</footer>
+</body></html>"""
+
+
+def card_file_name(result: dict) -> str:
+    slug = re.sub(r"[^A-Za-z0-9]+", "_", result.get("drug_name") or "").strip("_")[:60]
+    return f"{slug or 'medicine'}_card.html"
+
+
 def show_result(result: dict) -> None:
     """Render the analyze() output as five cards and a question list."""
     if not isinstance(result, dict) or not result or result.get("error"):
@@ -236,8 +385,14 @@ def show_result(result: dict) -> None:
     if verification.get("confidence") == "low":
         notice("warn", "⚠️", "Please check this with your pharmacist.")
 
-    cards = result.get("cards") if isinstance(result.get("cards"), dict) else {}
-    html_cards = "".join(card_html(key, title, icon, cards.get(key) or []) for key, title, icon in CARDS)
+    listen, keep = st.columns(2)
+    with listen:
+        read_aloud(speech_text(result))
+    with keep:
+        st.download_button("🖨 Printable card", data=print_html(result), file_name=card_file_name(result),
+                           mime="text/html", key="print_card", use_container_width=True)
+
+    html_cards = "".join(card_html(key, title, icon, items) for key, title, icon, items in _items(result))
     st.markdown(html_cards, unsafe_allow_html=True)
 
     questions = [q for q in result.get("pharmacist_questions") or [] if q]
@@ -276,15 +431,23 @@ def show_warnings(warnings: list[dict]) -> None:
 
 def explain_tab() -> None:
     steps("Upload or paste the leaflet", "Press Explain", "Read the cards")
-    upload = st.file_uploader("Upload the leaflet (PDF)", type=["pdf"], key="explain_pdf")
+    upload = st.file_uploader("Upload the leaflet (PDF or a photo)", type=["pdf", "png", "jpg", "jpeg", "webp"],
+                              key="explain_pdf")
     st.markdown('<p class="or">or</p>', unsafe_allow_html=True)
     pasted = st.text_area("Paste the leaflet text here", height=180, key="explain_text")
 
     if st.button("Explain", type="primary", key="explain_button", use_container_width=True):
-        text = leaflet_from_pdf(upload.getvalue()) if upload else extract_leaflet(pasted.strip())
+        if upload and is_photo(upload):
+            with st.spinner("Reading the photo…"):
+                text = extract_leaflet(leaflet_from_photo(upload.getvalue()))
+        elif upload:
+            text = leaflet_from_pdf(upload.getvalue())
+        else:
+            text = extract_leaflet(pasted.strip())
         if not text.strip():
             st.session_state.pop("explain_result", None)
-            notice("warn", "⚠️", "We could not read any text. Please upload a PDF leaflet or paste its text.")
+            notice("warn", "⚠️", "We could not read any text. Please upload a clear PDF or photo, "
+                                 "or paste the leaflet text.")
         else:
             with st.spinner("Reading the leaflet… This can take about 30 seconds."):
                 st.session_state["explain_result"] = explain(text)
