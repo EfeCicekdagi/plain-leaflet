@@ -48,24 +48,25 @@ In `data/samples/`: `Clopidogrel_Zentiva.pdf`, `Nexium_Control.pdf`,
 
 ## Demo
 
-**Main pair: Xarelto (rivaroxaban) + Clopidogrel Zentiva (clopidogrel).** The
-"Other medicines and Xarelto" section lists "other medicines to reduce blood
-clotting (e.g. enoxaparin, clopidogrel or vitamin K antagonists such as
-warfarin and acenocoumarol)". Svariya has the same sentence.
+**Main pair: Xarelto (rivaroxaban) + Clopidogrel Zentiva (clopidogrel).** Warns
+in both directions. The "Other medicines and Xarelto" section lists "other
+medicines to reduce blood clotting (e.g. enoxaparin, clopidogrel ...)", and
+the Clopidogrel Zentiva leaflet lists "oral anticoagulants" (found through the
+drug class dictionary). Svariya behaves like Xarelto.
 
-**Three medicines: Xarelto + Clopidogrel Zentiva + Nexium Control.** Gives
-three warnings: Xarelto names clopidogrel, Clopidogrel Zentiva names
-esomeprazole, and Nexium Control names clopidogrel. All three PDFs are in
-`data/samples/`.
+**Three medicines: Xarelto + Clopidogrel Zentiva + Nexium Control.** Gives four
+warnings: the two above, plus Clopidogrel Zentiva naming esomeprazole and
+Nexium Control naming clopidogrel. All three PDFs are in `data/samples/`.
 
-Backup pair: **Entresto (sacubitril/valsartan) + Rasilez (aliskiren).** The
-"Other medicines and Entresto" section names aliskiren. Rasilez names valsartan
-only under "Do not take Rasilez", so the warning shows in one direction.
+Backup pair: **Entresto (sacubitril/valsartan) + Rasilez (aliskiren).** Entresto
+names aliskiren; Rasilez names "an angiotensin II receptor blocker", the class
+of valsartan.
 
 ## Notes
 
 - Xarelto's PDF contains several leaflets (one per strength), so its leaflet
   text is much longer (~144k characters) than the others (12–43k).
-- Rasilez and DuoPlavin name a drug class ("non-steroidal anti-inflammatory
-  medicines (NSAIDs)") instead of ibuprofen. A plain name search misses these
-  (known limit, see `safety/interactions.py`).
+- Several leaflets name a drug class ("NSAIDs", "oral anticoagulants") instead
+  of a substance. `DRUG_CLASSES` in `safety/interactions.py` maps six common
+  classes to their substances; a class that is not in that list is still
+  missed (known limit).
