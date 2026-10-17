@@ -2,8 +2,9 @@
 
 Plain Leaflet turns official medicine package leaflets into short, plain-English,
 large-print cards for older adults. Every sentence on a card is linked to the
-exact passage of the leaflet it comes from, so nothing is invented. A second tab
-checks several leaflets against each other for interaction warnings.
+exact passage of the leaflet it comes from, so the reader can check it against
+the original. A second tab checks several leaflets against each other for
+interaction warnings.
 
 Samsung Innovation Campus GenAI for SDGs Hackathon, Group 7.
 SDG 3.8 (access to safe medicines and health information) and SDG 10.2 (inclusion of older adults).
@@ -109,13 +110,38 @@ rate.
 
 ```bash
 python -m eval.run_eval              # data/kt/txt, real model calls, needs a key
-python -m eval.run_eval --onbellek   # reuse saved outputs in eval/outputs/
+python -m eval.run_eval --onbellek   # reuse saved outputs; retries failed or unverified ones
+python -m eval.run_eval --sadakat    # recompute the faithfulness score from the labelled CSV
 ```
 
 Do not run the evaluation in mock mode: every leaflet would get the same sample
-cards and the numbers would be meaningless. After the first run, mark the
-sampled items in `eval/sadakat_kontrol.csv` (E = faithful, H = not) and run
-`python -m eval.run_eval --sadakat` to add the manual faithfulness score.
+cards and the numbers would be meaningless. The first run also writes
+`eval/sadakat_kontrol.csv`, a random sample of 3 final items per leaflet; mark
+each one E (faithful to its quote) or H (not), then run with `--sadakat`.
+
+## Results
+
+Full tables: [`eval/results.md`](eval/results.md). 16 EMA and eMC leaflets,
+`gemini-3.6-flash` (fallback `gemini-3.5-flash`), 17 October 2026.
+
+| Measure | Result |
+|---|---|
+| Readability, Flesch Reading Ease (higher = easier) | 49.2 before, 65.1 after (+15.9) |
+| Final quotes found verbatim in the leaflet | 264 / 264 |
+| Draft items not grounded or saying more than their quote | 8.8% |
+| Items removed by the automatic checks | 2.9% |
+| Sampled final items faithful to their quote | 39 / 45 (86.7%) |
+
+The target was under 5% unfaithful items. The automatic checks remove
+ungrounded items, but the independent check of 45 sampled final items still
+found 6 (13.3%) that widen, narrow or drop a condition, for example "new or
+worsening heartburn" becoming any heartburn. Tightening the verifier's
+`k3_condition_kept` criterion is the next step.
+
+The sample was labelled by Claude (Anthropic), reviewed by a team member, and
+reviewed again by GPT (OpenAI), which changed 3 labels; the team accepted the
+changes. The reason for every H is in
+[`eval/sadakat_kontrol.csv`](eval/sadakat_kontrol.csv).
 
 ## Project structure
 
@@ -131,12 +157,18 @@ prompts/                draft, verifier and fix prompts, design notes
 safety/
   sections.py           leaflet extraction, drug name, "Other medicines" section
   interactions.py       rule-based interaction check
-eval/                   readability metric and evaluation script
+eval/
+  readability.py        Flesch (English) and Ateşman (Turkish) scores
+  run_eval.py           evaluation script
+  results.md            evaluation results
+  outputs/              saved model output for every evaluated leaflet
+  sadakat_kontrol.csv   labelled faithfulness sample
 mock/                   sample outputs for mock mode
 tests/                  unit tests
 data/
   samples/              six EMA leaflets for trying the app
   sources.md            where every leaflet comes from, licence
+Plain_Leaflet_Project_Report.pdf   hackathon project report
 ```
 
 `data/kt/` holds all 16 evaluation leaflets. It is not in git (some come from
