@@ -46,11 +46,13 @@ def _uret(model: str, contents, ayar: types.GenerateContentConfig) -> str:
     raise RuntimeError(f"Model çağrısı başarısız: {son_hata}")
 
 
-def ask(prompt: str, sistem: str | None = None, sema: dict | None = None, model: str | None = None) -> str:
+def ask(prompt: str, sistem: str | None = None, sema: dict | None = None, model: str | None = None,
+        dusunme: int | None = None) -> str:
     """Prompt'u modele gönderir, JSON metni döndürür. Başarısız olursa RuntimeError.
 
     sistem: her çağrıda sabit kurallar (system instruction). prompt: bu çağrının görevi.
     sema: cevabın uyması gereken JSON şeması (schema-first). Model şemayı reddederse şemasız tekrar denenir.
+    dusunme: modelin gizli düşünme bütçesi (token). None = model varsayılanı, 0 = kapalı (hızlı).
     """
     model = model or config.MODEL_NAME
     ayar = types.GenerateContentConfig(
@@ -58,14 +60,15 @@ def ask(prompt: str, sistem: str | None = None, sema: dict | None = None, model:
         response_mime_type="application/json",
         system_instruction=sistem,
         response_schema=types.Schema.model_validate(sema) if sema else None,
+        thinking_config=types.ThinkingConfig(thinking_budget=dusunme) if dusunme is not None else None,
     )
     try:
         return _uret(model, prompt, ayar)
     except errors.ClientError as e:
-        if e.code == 400 and sema is not None:
-            return ask(prompt, sistem, None, model)
+        if e.code == 400 and (sema is not None or dusunme is not None):
+            return ask(prompt, sistem, None, model)  # model şemayı veya düşünme ayarını desteklemiyor
         if e.code == 404 and model != config.MODEL_NAME:
-            return ask(prompt, sistem, sema, config.MODEL_NAME)
+            return ask(prompt, sistem, sema, config.MODEL_NAME, dusunme)
         raise RuntimeError(f"Model çağrısı başarısız: {e.code} {e.message}") from e
 
 

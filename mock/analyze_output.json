@@ -1,52 +1,52 @@
 {
-  "ilac_adi": "ÖRNEKİLAÇ 500 mg tablet",
+  "ilac_adi": "EXAMPLEDRUG 500 mg tablets",
   "kartlar": {
     "ne_icin": [
       {
-        "metin": "Ağrı ve ateşi azaltmak için kullanılır.",
-        "kanit": "ÖRNEKİLAÇ, hafif ve orta şiddetli ağrıların ve ateşin tedavisinde kullanılır."
+        "metin": "It eases pain and lowers fever.",
+        "kanit": "EXAMPLEDRUG is used to treat mild to moderate pain and fever."
       }
     ],
     "nasil_kullanilir": [
       {
-        "metin": "Doktorunuz nasıl söylediyse öyle kullanın.",
-        "kanit": "ÖRNEKİLAÇ'ı her zaman doktorunuzun söylediği şekilde kullanınız."
+        "metin": "Take it exactly as your doctor told you.",
+        "kanit": "Always take this medicine exactly as your doctor has told you."
       },
       {
-        "metin": "Tableti bir bardak su ile yutun.",
-        "kanit": "Tabletler bir bardak su ile yutulmalıdır."
+        "metin": "Swallow the tablet with a glass of water.",
+        "kanit": "Swallow the tablets with a glass of water."
       }
     ],
     "hemen_doktora": [
       {
-        "metin": "Yüzünüz, dudağınız ya da boğazınız şişerse hemen doktora gidin.",
-        "kanit": "Yüzde, dudaklarda, dilde veya boğazda şişme olursa ÖRNEKİLAÇ'ı kullanmayı durdurun ve derhal doktorunuza bildirin."
+        "metin": "If your face or throat swells, stop and call your doctor now.",
+        "kanit": "If you notice swelling of the face, lips, tongue or throat, stop taking this medicine and contact your doctor immediately"
       }
     ],
     "yan_etkiler": [
       {
-        "metin": "Bazı kişilerde mide bulantısı olabilir.",
-        "kanit": "Yaygın: Bulantı"
+        "metin": "Some people may feel sick.",
+        "kanit": "Common: nausea"
       }
     ],
     "saklama": [
       {
-        "metin": "25 derecenin altında, kuru bir yerde saklayın.",
-        "kanit": "25°C'nin altındaki oda sıcaklığında ve kuru bir yerde saklayınız."
+        "metin": "Store it below 25 degrees, in a dry place.",
+        "kanit": "Store below 25°C in a dry place."
       },
       {
-        "metin": "Çocukların göremeyeceği yerde tutun.",
-        "kanit": "ÖRNEKİLAÇ'ı çocukların göremeyeceği, erişemeyeceği yerlerde ve ambalajında saklayınız."
+        "metin": "Keep it out of the sight and reach of children.",
+        "kanit": "Keep this medicine out of the sight and reach of children."
       }
     ]
   },
   "eczaciya_sorular": [
-    "Günde en fazla kaç tablet alabilirim?",
-    "Kullandığım tansiyon ilacıyla birlikte alabilir miyim?"
+    "What is the most I can take in one day?",
+    "Can I take it with my blood pressure medicine?"
   ],
   "dogrulama": {
     "desteklenmeyen": [
-      "Aç karnına alınmalıdır."
+      "Take it on an empty stomach."
     ],
     "guven": "orta"
   }

@@ -1,5 +1,7 @@
 """analyze() çıktısının veri sözleşmesi. Sadece Kişi 1 değiştirir.
 
+Kartlar KT ile aynı dildedir (Türkçe veya İngilizce). JSON anahtarları her zaman aynıdır.
+
 {
   "ilac_adi": "ÖRNEKİLAÇ 500 mg tablet",
   "kartlar": {
@@ -28,6 +30,15 @@ KART_BASLIKLARI = {
     "hemen_doktora": "Hemen doktora başvurun",
     "yan_etkiler": "Olası yan etkiler",
     "saklama": "Nasıl saklanır?",
+}
+
+# Arayüz İngilizce: kart başlıkları
+KART_BASLIKLARI_EN = {
+    "ne_icin": "What is it for?",
+    "nasil_kullanilir": "How do I take it?",
+    "hemen_doktora": "See a doctor right away if",
+    "yan_etkiler": "Possible side effects",
+    "saklama": "How do I store it?",
 }
 
 GUVEN_DEGERLERI = ("yuksek", "orta", "dusuk")
@@ -136,4 +147,9 @@ DOGRULAYICI_CEVAP_SEMASI = _nesne(
         )),
     },
     ["sonuclar"],
+)
+
+DUZELTME_CEVAP_SEMASI = _nesne(
+    {"duzeltmeler": _liste(_nesne({"id": {"type": "INTEGER"}, "metin": _YAZI}, ["id", "metin"]))},
+    ["duzeltmeler"],
 )
