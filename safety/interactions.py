@@ -21,7 +21,10 @@ SYNONYMS = {
 
 # Bullet characters PDF extraction leaves at the start of list items,
 # including Symbol-font private-use characters
-BULLET = re.compile(r"^\s*(?:[•▪●◦\-]|o(?=\s))\s*")
+BULLET = re.compile(r"^\s*(?:[•▪●◦*\-]|o(?=\s))\s*")
+# Page numbers PDF extraction leaves on their own line or before a sentence
+PAGE_NUMBER = re.compile(r"^\s*\d{1,3}\s*$")
+INLINE_PAGE_NUMBER = re.compile(r"(?<=[.)])\s+\d{1,3}\s+(?=[A-Z])")
 
 MIN_NAME_WORD = 5
 
@@ -45,6 +48,8 @@ def _sentences(section: str) -> list[str]:
     """Split a section into list items and sentences with clean spacing."""
     items, current = [], []
     for line in section.splitlines():
+        if PAGE_NUMBER.match(line):
+            continue
         if BULLET.match(line) and current:
             items.append(" ".join(current))
             current = []
@@ -56,7 +61,7 @@ def _sentences(section: str) -> list[str]:
 
     sentences = []
     for item in items:
-        item = re.sub(r"\s+", " ", item).strip()
+        item = INLINE_PAGE_NUMBER.sub(" ", re.sub(r"\s+", " ", item)).strip()
         sentences.extend(s for s in re.split(r"(?<=[.!?])\s+(?=[A-Z])", item) if s)
     return sentences
 
