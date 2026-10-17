@@ -1,0 +1,53 @@
+{
+  "ilac_adi": "ÖRNEKİLAÇ 500 mg tablet",
+  "kartlar": {
+    "ne_icin": [
+      {
+        "metin": "Ağrı ve ateşi azaltmak için kullanılır.",
+        "kanit": "ÖRNEKİLAÇ, hafif ve orta şiddetli ağrıların ve ateşin tedavisinde kullanılır."
+      }
+    ],
+    "nasil_kullanilir": [
+      {
+        "metin": "Doktorunuz nasıl söylediyse öyle kullanın.",
+        "kanit": "ÖRNEKİLAÇ'ı her zaman doktorunuzun söylediği şekilde kullanınız."
+      },
+      {
+        "metin": "Tableti bir bardak su ile yutun.",
+        "kanit": "Tabletler bir bardak su ile yutulmalıdır."
+      }
+    ],
+    "hemen_doktora": [
+      {
+        "metin": "Yüzünüz, dudağınız ya da boğazınız şişerse hemen doktora gidin.",
+        "kanit": "Yüzde, dudaklarda, dilde veya boğazda şişme olursa ÖRNEKİLAÇ'ı kullanmayı durdurun ve derhal doktorunuza bildirin."
+      }
+    ],
+    "yan_etkiler": [
+      {
+        "metin": "Bazı kişilerde mide bulantısı olabilir.",
+        "kanit": "Yaygın: Bulantı"
+      }
+    ],
+    "saklama": [
+      {
+        "metin": "25 derecenin altında, kuru bir yerde saklayın.",
+        "kanit": "25°C'nin altındaki oda sıcaklığında ve kuru bir yerde saklayınız."
+      },
+      {
+        "metin": "Çocukların göremeyeceği yerde tutun.",
+        "kanit": "ÖRNEKİLAÇ'ı çocukların göremeyeceği, erişemeyeceği yerlerde ve ambalajında saklayınız."
+      }
+    ]
+  },
+  "eczaciya_sorular": [
+    "Günde en fazla kaç tablet alabilirim?",
+    "Kullandığım tansiyon ilacıyla birlikte alabilir miyim?"
+  ],
+  "dogrulama": {
+    "desteklenmeyen": [
+      "Aç karnına alınmalıdır."
+    ],
+    "guven": "orta"
+  }
+}

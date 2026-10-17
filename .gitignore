@@ -1,0 +1,10 @@
+# Gizli anahtar asla GitHub'a gitmez
+.env
+
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+
+# Kişi 2'nin paylaştığı 10 KT'nin tam metni (repoya sadece data/samples/ girer)
+data/kt/
