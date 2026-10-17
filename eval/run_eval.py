@@ -39,8 +39,8 @@ SADAKAT_ORNEK = 3  # ilaç başına elle kontrol edilecek madde
 def sade_metin(sonuc: dict) -> str:
     cumleler = []
     for kart in schema.KARTLAR:
-        for madde in sonuc["kartlar"][kart]:
-            metin = madde["metin"].strip()
+        for madde in sonuc["cards"][kart]:
+            metin = madde["text"].strip()
             cumleler.append(metin if metin[-1] in ".!?" else metin + ".")
     return " ".join(cumleler)
 
@@ -49,21 +49,21 @@ def olc(ad: str, kt_metni: str, sonuc: dict, detay: dict, sure: float) -> dict:
     dil = detay.get("dil") or dil_tespit(kt_metni)
     skor_kt, olcut = okunabilirlik(kt_metni, dil)
     satir = {"ilac": ad, "dil": dil, "olcut": olcut, "sure_sn": round(sure, 1), "okunabilirlik_kt": skor_kt}
-    if "hata" in sonuc:
-        satir["hata"] = sonuc["hata"]
+    if "error" in sonuc:
+        satir["error"] = sonuc["error"]
         return satir
-    maddeler = [m for kart in schema.KARTLAR for m in sonuc["kartlar"][kart]]
-    kalan, cikarilan = len(maddeler), len(sonuc["dogrulama"]["desteklenmeyen"])
+    maddeler = [m for kart in schema.KARTLAR for m in sonuc["cards"][kart]]
+    kalan, cikarilan = len(maddeler), len(sonuc["verification"]["unsupported"])
     satir.update({
-        "ilac_adi": sonuc["ilac_adi"],
+        "drug_name": sonuc["drug_name"],
         "okunabilirlik_sade": okunabilirlik(sade_metin(sonuc), dil)[0],
         "kalan": kalan,
         "cikarilan": cikarilan,
         # Bağımsız tekrar kontrol: son çıktıdaki her kanıt KT'de gerçekten var mı?
-        "kanit_dolu": sum(1 for m in maddeler if m["kanit"]),
-        "kanit_kt_de": sum(1 for m in maddeler if kanit_skoru(m["kanit"], kt_metni) >= config.KANIT_ESIK),
-        "soru": len(sonuc["eczaciya_sorular"]),
-        "guven": sonuc["dogrulama"]["guven"],
+        "kanit_dolu": sum(1 for m in maddeler if m["evidence"]),
+        "kanit_kt_de": sum(1 for m in maddeler if kanit_skoru(m["evidence"], kt_metni) >= config.KANIT_ESIK),
+        "soru": len(sonuc["pharmacist_questions"]),
+        "confidence": sonuc["verification"]["confidence"],
         "kod_elenen": detay.get("kod_elenen", 0),
         "sayi_elenen": detay.get("sayi_elenen", 0),
         "llm_elenen": detay.get("llm_elenen", 0),
@@ -79,13 +79,13 @@ def sadakat_ornegi_yaz(sonuclar: dict[str, dict], tohum: int = 42) -> None:
     rastgele = random.Random(tohum)
     with open(SADAKAT_CSV, "w", encoding="utf-8-sig", newline="") as f:
         yazici = csv.writer(f)
-        yazici.writerow(["ilac", "kart", "metin", "kanit", "sadik"])
+        yazici.writerow(["ilac", "kart", "text", "evidence", "sadik"])
         for ad, sonuc in sonuclar.items():
-            if "hata" in sonuc:
+            if "error" in sonuc:
                 continue
-            maddeler = [(kart, m) for kart in schema.KARTLAR for m in sonuc["kartlar"][kart]]
+            maddeler = [(kart, m) for kart in schema.KARTLAR for m in sonuc["cards"][kart]]
             for kart, m in rastgele.sample(maddeler, min(SADAKAT_ORNEK, len(maddeler))):
-                yazici.writerow([ad, kart, m["metin"], m["kanit"], ""])
+                yazici.writerow([ad, kart, m["text"], m["evidence"], ""])
 
 
 def sadakat_oku() -> tuple[int, int] | None:
@@ -106,8 +106,8 @@ def yuzde(pay: float, payda: float) -> str:
 
 def rapor_yaz(ozet: dict) -> None:
     satirlar = ozet["satirlar"]
-    basarili = [s for s in satirlar if "hata" not in s]
-    hatali = [s for s in satirlar if "hata" in s]
+    basarili = [s for s in satirlar if "error" not in s]
+    hatali = [s for s in satirlar if "error" in s]
     diller = sorted({s["dil"] for s in satirlar})
 
     y = [
@@ -158,7 +158,7 @@ def rapor_yaz(ozet: dict) -> None:
         y.append(
             f"| {s['ilac']}{uyari} | {s['kalan'] + s['cikarilan']} | {s['kod_elenen']} | {s['sayi_elenen']} | {s['llm_ilk_ret']} "
             f"| {s['duzeltilen']} | {s['cikarilan']} | {s['kalan']} "
-            f"| {yuzde(s['kalan'], s['kalan'] + s['cikarilan'])} | {s['kanit_kt_de']}/{s['kalan']} | {s['soru']} | {s['guven']} | {s['sure_sn']} |"
+            f"| {yuzde(s['kalan'], s['kalan'] + s['cikarilan'])} | {s['kanit_kt_de']}/{s['kalan']} | {s['soru']} | {s['confidence']} | {s['sure_sn']} |"
         )
     toplam = {k: sum(s[k] for s in basarili)
               for k in ("kod_elenen", "sayi_elenen", "llm_ilk_ret", "duzeltilen", "kanit_kt_de", "soru")}
@@ -208,7 +208,7 @@ def rapor_yaz(ozet: dict) -> None:
 
     if hatali:
         y += ["", "## 5. Leaflets that returned an error", "", "| Medicine | Error |", "|---|---|"]
-        y += [f"| {s['ilac']} | {s['hata']} |" for s in hatali]
+        y += [f"| {s['ilac']} | {s['error']} |" for s in hatali]
 
     with open(SONUCLAR, "w", encoding="utf-8") as f:
         f.write("\n".join(y) + "\n")
@@ -241,7 +241,7 @@ def calistir(klasor: Path, onbellek: bool, bekle: float) -> None:
         sonuclar[ad] = sonuc
         satir = olc(ad, kt_metni, sonuc, detay, sure)
         satirlar.append(satir)
-        durum = f"HATA: {satir['hata']}" if "hata" in satir else f"{satir['kalan']} madde, {satir['cikarilan']} çıkarıldı, güven {satir['guven']}"
+        durum = f"HATA: {satir['error']}" if "error" in satir else f"{satir['kalan']} madde, {satir['cikarilan']} çıkarıldı, güven {satir['confidence']}"
         print(f"[{i}/{len(dosyalar)}] {ad} ({satir['dil']}): {durum}")
 
     ozet = {"tarih": date.today().isoformat(), "model": config.MODEL_NAME, "satirlar": satirlar}

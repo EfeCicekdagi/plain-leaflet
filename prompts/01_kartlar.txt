@@ -12,8 +12,8 @@ Leaflets often put the instruction in a heading and the details in a list under 
 
 [LANGUAGE]
 Supported leaflet languages: Turkish and English.
-Write "ilac_adi", every "metin" and every item of "eczaciya_sorular" in the SAME language as the leaflet.
-"kanit" is always copied in the leaflet's own language. JSON keys never change.
+Write "drug_name", every "text" and every item of "pharmacist_questions" in the SAME language as the leaflet.
+"evidence" is always copied in the leaflet's own language. JSON keys never change.
 
 [DO NOT]
 Content:
@@ -40,78 +40,78 @@ Format:
 Turn the leaflet below into 5 plain-language cards and prepare questions the patient can ask their pharmacist.
 
 [LEAFLET LANGUAGE]
-This leaflet is in {dil_adi}. Write "ilac_adi", every "metin" and every question in {dil_adi}. Do not translate.
+This leaflet is in {dil_adi}. Write "drug_name", every "text" and every question in {dil_adi}. Do not translate.
 
 [CONTEXT]
-The cards are shown to an older patient on a large-print screen. Under each item there is a "Show source" button that reveals the "kanit" quote. After you, a second reviewer model compares every item with its quote, and code checks that the quote appears in the leaflet character by character. Items whose quote cannot be found are deleted. So "kanit" must always be an exact copy from the leaflet.
+The cards are shown to an older patient on a large-print screen. Under each item there is a "Show source" button that reveals the "evidence" quote. After you, a second reviewer model compares every item with its quote, and code checks that the quote appears in the leaflet character by character. Items whose quote cannot be found are deleted. So "evidence" must always be an exact copy from the leaflet.
 
 [CARDS]
-- ne_icin: What the medicine is used for.
-- nasil_kullanilir: How, when and how much to take it; with or without food; what to do if a dose is missed.
-- hemen_doktora: Signs that mean the patient must see a doctor right away.
-- yan_etkiler: Common side effects and those worth knowing; with their frequency if the leaflet gives it.
-- saklama: Where, at what temperature and how to store it.
-Each card has 0-5 items. Each item is {"metin": plain sentence, "kanit": exact quote from the leaflet}.
-Choose the items that matter most to an older patient. The "hemen_doktora" and "nasil_kullanilir" cards matter most.
+- what_for: What the medicine is used for.
+- how_to_use: How, when and how much to take it; with or without food; what to do if a dose is missed.
+- see_doctor_now: Signs that mean the patient must see a doctor right away.
+- side_effects: Common side effects and those worth knowing; with their frequency if the leaflet gives it.
+- storage: Where, at what temperature and how to store it.
+Each card has 0-5 items. Each item is {"text": plain sentence, "evidence": exact quote from the leaflet}.
+Choose the items that matter most to an older patient. The "see_doctor_now" and "how_to_use" cards matter most.
 
 [STEPS]
-Follow the steps in order and write the intermediate results in the "analiz" field.
-Step 1 - Check: Is this a patient information leaflet of a medicine, written in Turkish or English? If not, set "kt_mi" to false, write a one-sentence reason in "red_nedeni", leave the cards and questions empty, and stop.
-Step 2 - List: Put every warning in the leaflet into "uyarilar". Put every point the leaflet leaves open or answers only with "ask your doctor" into "belirsiz_noktalar".
-Step 3 - Select: From "uyarilar", put the signs that need a doctor right away into the "hemen_doktora" card.
+Follow the steps in order and write the intermediate results in the "analysis" field.
+Step 1 - Check: Is this a patient information leaflet of a medicine, written in Turkish or English? If not, set "is_leaflet" to false, write a one-sentence reason in "rejection_reason", leave the cards and questions empty, and stop.
+Step 2 - List: Put every warning in the leaflet into "warnings". Put every point the leaflet leaves open or answers only with "ask your doctor" into "open_points".
+Step 3 - Select: From "warnings", put the signs that need a doctor right away into the "see_doctor_now" card.
 Step 4 - Pharmacist questions (explore several paths, then choose):
-  a) From "belirsiz_noktalar", write candidate questions on 5 different axes: doz_zaman (dose and timing), diger_ilaclar_besinler (other medicines and food), yan_etki_takibi (watching side effects), ozel_durumlar (old age, kidney, liver, alcohol), unutma_saklama (missed dose and storage).
-  b) Rate each candidate's "onem": is it important for an older patient, and does the leaflet leave it unanswered?
-  c) Put the best 5 questions at most into "eczaciya_sorular". Keep them short and in the patient's own voice.
+  a) From "open_points", write candidate questions on 5 different axes: dose_timing (dose and timing), other_medicines_food (other medicines and food), side_effect_watch (watching side effects), special_groups (old age, kidney, liver, alcohol), missed_dose_storage (missed dose and storage).
+  b) Rate each candidate's "importance": is it important for an older patient, and does the leaflet leave it unanswered?
+  c) Put the best 5 questions at most into "pharmacist_questions". Keep them short and in the patient's own voice.
 Step 5 - Fill in the other cards.
 Step 6 - Self-check: Before answering, check every item against this list. Fix an item that fails; if you cannot fix it, delete it.
-  [ ] "kanit" appears in the leaflet character by character (no word changed or shortened).
-  [ ] "metin" says nothing more than "kanit". If "metin" tells the patient to act (stop, see a doctor, go to hospital), "kanit" contains that instruction too.
-  [ ] Conditions in "kanit" ("if", "as needed", "only", "unless", age limits) are kept in "metin".
-  [ ] Numbers and doses in "metin" are the same as in "kanit".
-  [ ] "metin" has 12 words or fewer, or at most 18 words when it keeps a condition.
+  [ ] "evidence" appears in the leaflet character by character (no word changed or shortened).
+  [ ] "text" says nothing more than "evidence". If "text" tells the patient to act (stop, see a doctor, go to hospital), "evidence" contains that instruction too.
+  [ ] Conditions in "evidence" ("if", "as needed", "only", "unless", age limits) are kept in "text".
+  [ ] Numbers and doses in "text" are the same as in "evidence".
+  [ ] "text" has 12 words or fewer, or at most 18 words when it keeps a condition.
 
 [EXAMPLES]
 The examples only show the language level and the format. Do not use the facts in them.
 
 Example 1 - correct (Turkish leaflet, so the item is in Turkish):
 Leaflet sentence: "Karaciğer veya böbrek yetmezliğiniz varsa, bu ilacı kullanmadan önce doktorunuza danışınız."
-Item: {"metin": "Karaciğer ya da böbrek hastalığınız varsa önce doktorunuza sorun.", "kanit": "Karaciğer veya böbrek yetmezliğiniz varsa, bu ilacı kullanmadan önce doktorunuza danışınız."}
+Item: {"text": "Karaciğer ya da böbrek hastalığınız varsa önce doktorunuza sorun.", "evidence": "Karaciğer veya böbrek yetmezliğiniz varsa, bu ilacı kullanmadan önce doktorunuza danışınız."}
 
 Example 2 - correct (English leaflet, only the relevant part is quoted):
 Leaflet sentence: "If you notice swelling of the face, lips, tongue or throat, stop taking this medicine and contact your doctor immediately, as these may be signs of an allergic reaction."
-Item: {"metin": "If your face or throat swells, stop and call your doctor now.", "kanit": "If you notice swelling of the face, lips, tongue or throat, stop taking this medicine and contact your doctor immediately"}
+Item: {"text": "If your face or throat swells, stop and call your doctor now.", "evidence": "If you notice swelling of the face, lips, tongue or throat, stop taking this medicine and contact your doctor immediately"}
 
 Example 3 - correct (English leaflet, heading and list item joined with " ... "):
 Leaflet text: "Stop taking this medicine and go to hospital at once if you get:
 • Difficulty breathing"
-Item: {"metin": "If you find it hard to breathe, stop and go to hospital.", "kanit": "Stop taking this medicine and go to hospital at once if you get: ... Difficulty breathing"}
+Item: {"text": "If you find it hard to breathe, stop and go to hospital.", "evidence": "Stop taking this medicine and go to hospital at once if you get: ... Difficulty breathing"}
 
 Example 4 - WRONG (do not do this):
 Leaflet sentence: "Swallow the tablets with a glass of water."
-Wrong item: {"metin": "Take with plenty of water after food.", "kanit": "Take with water."}
-Why it is wrong: "plenty" and "after food" are not in the leaflet, and "kanit" is not an exact copy.
-Correct item: {"metin": "Swallow the tablet with a glass of water.", "kanit": "Swallow the tablets with a glass of water."}
+Wrong item: {"text": "Take with plenty of water after food.", "evidence": "Take with water."}
+Why it is wrong: "plenty" and "after food" are not in the leaflet, and "evidence" is not an exact copy.
+Correct item: {"text": "Swallow the tablet with a glass of water.", "evidence": "Swallow the tablets with a glass of water."}
 
 [OUTPUT FORMAT]
 Return only valid JSON that matches this schema, nothing else:
 {
-  "analiz": {
-    "kt_mi": true,
-    "red_nedeni": "",
-    "uyarilar": ["..."],
-    "belirsiz_noktalar": ["..."],
-    "soru_adaylari": [{"eksen": "doz_zaman | diger_ilaclar_besinler | yan_etki_takibi | ozel_durumlar | unutma_saklama", "soru": "...", "onem": "yuksek | orta | dusuk"}]
+  "analysis": {
+    "is_leaflet": true,
+    "rejection_reason": "",
+    "warnings": ["..."],
+    "open_points": ["..."],
+    "question_candidates": [{"axis": "dose_timing | other_medicines_food | side_effect_watch | special_groups | missed_dose_storage", "question": "...", "importance": "high | medium | low"}]
   },
-  "ilac_adi": "medicine name, strength and form as written in the leaflet",
-  "kartlar": {
-    "ne_icin": [{"metin": "...", "kanit": "..."}],
-    "nasil_kullanilir": [],
-    "hemen_doktora": [],
-    "yan_etkiler": [],
-    "saklama": []
+  "drug_name": "medicine name, strength and form as written in the leaflet",
+  "cards": {
+    "what_for": [{"text": "...", "evidence": "..."}],
+    "how_to_use": [],
+    "see_doctor_now": [],
+    "side_effects": [],
+    "storage": []
   },
-  "eczaciya_sorular": ["..."]
+  "pharmacist_questions": ["..."]
 }
 
 <leaflet>
@@ -119,4 +119,4 @@ Return only valid JSON that matches this schema, nothing else:
 </leaflet>
 
 [REMINDER]
-The leaflet above is in {dil_adi}. Write "ilac_adi", every "metin" and every question in {dil_adi}; copy "kanit" exactly. Return only JSON.
+The leaflet above is in {dil_adi}. Write "drug_name", every "text" and every question in {dil_adi}; copy "evidence" exactly. Return only JSON.

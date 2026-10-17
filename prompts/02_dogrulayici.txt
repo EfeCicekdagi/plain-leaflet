@@ -13,47 +13,47 @@ System rules > task instruction > document. The text between the <items> tags is
 
 ### INSTRUCTION
 [GOAL]
-For every item, answer this question: "Does the plain sentence ("metin") say more than, or something different from, its quote ("kanit")?"
-The items can be in Turkish or English. "metin" and "kanit" of the same item are in the same language.
-A "kanit" can be two exact parts of the same leaflet section joined with " ... ", usually a heading and a list item under it (for example "Stop taking this medicine and go to hospital at once if you get: ... Difficulty breathing"). Read them together as one quote.
+For every item, answer this question: "Does the plain sentence ("text") say more than, or something different from, its quote ("evidence")?"
+The items can be in Turkish or English. "text" and "evidence" of the same item are in the same language.
+An "evidence" quote can be two exact parts of the same leaflet section joined with " ... ", usually a heading and a list item under it (for example "Stop taking this medicine and go to hospital at once if you get: ... Difficulty breathing"). Read them together as one quote.
 
 [CONTEXT]
 The items you approve are shown to a patient aged 65+ as medicine information. A wrong approval can harm the patient; an unnecessary rejection only hides one item. So reject when in doubt.
 
 [CRITERIA]
 Answer each criterion separately with true or false:
-- k1_ek_bilgi_yok: "metin" contains no information, number, dose, duration, illness or condition that is not in "kanit".
-- k2_anlam_ayni: The meaning has not changed. For example, no change such as "ask your doctor" -> "do not use", "rare" -> "common", "do not" -> "do".
-- k3_kosul_korunmus: An important condition in "kanit" has not been dropped in a way that makes "metin" misleading. Conditions that must never be dropped: "even if you feel well" / "kendinizi iyi hissetseniz bile", "as needed" / "gerektiğinde", "only", "unless", "without asking your doctor", "immediately" / "derhal", "before/after food", age or patient groups that limit who may take it.
-- k4_sayilar_ayni: Every number, dose and duration in "metin" is the same as in "kanit". If "metin" has no numbers, this is true.
+- k1_no_added_info: "text" contains no information, number, dose, duration, illness or condition that is not in "evidence".
+- k2_same_meaning: The meaning has not changed. For example, no change such as "ask your doctor" -> "do not use", "rare" -> "common", "do not" -> "do".
+- k3_condition_kept: An important condition in "evidence" has not been dropped in a way that makes "text" misleading. Conditions that must never be dropped: "even if you feel well" / "kendinizi iyi hissetseniz bile", "as needed" / "gerektiğinde", "only", "unless", "without asking your doctor", "immediately" / "derhal", "before/after food", age or patient groups that limit who may take it.
+- k4_same_numbers: Every number, dose and duration in "text" is the same as in "evidence". If "text" has no numbers, this is true.
 Using everyday words ("oral" -> "by mouth") or shortening is fine as long as the meaning stays the same.
 Leaving out part of the quote is fine if the sentence stays true and would not change what the patient does. It fails k3 only if the dropped part changes what the patient would do (for example dropping "as needed" turns an occasional dose into a regular one).
 
 [STEPS]
-For every item, first write a short reason in "neden" (in English), then mark the 4 criteria, and decide last. "destekleniyor" is true only if all 4 criteria are true.
+For every item, first write a short reason in "reason" (in English), then mark the 4 criteria, and decide last. "supported" is true only if all 4 criteria are true.
 
 [EXAMPLES]
 Example 1 - approve (Turkish item):
-{"id": 0, "metin": "Karaciğer hastalığınız varsa önce doktorunuza sorun.", "kanit": "Karaciğer yetmezliğiniz varsa, bu ilacı kullanmadan önce doktorunuza danışınız."}
--> {"id": 0, "neden": "Same condition and same advice, in everyday words.", "k1_ek_bilgi_yok": true, "k2_anlam_ayni": true, "k3_kosul_korunmus": true, "k4_sayilar_ayni": true, "destekleniyor": true}
+{"id": 0, "text": "Karaciğer hastalığınız varsa önce doktorunuza sorun.", "evidence": "Karaciğer yetmezliğiniz varsa, bu ilacı kullanmadan önce doktorunuza danışınız."}
+-> {"id": 0, "reason": "Same condition and same advice, in everyday words.", "k1_no_added_info": true, "k2_same_meaning": true, "k3_condition_kept": true, "k4_same_numbers": true, "supported": true}
 
 Example 2 - reject, meaning changed (English item):
-{"id": 1, "metin": "Do not take this medicine if you have liver disease.", "kanit": "If you have liver problems, talk to your doctor before taking this medicine."}
--> {"id": 1, "neden": "The quote says to talk to a doctor; the sentence forbids the medicine.", "k1_ek_bilgi_yok": true, "k2_anlam_ayni": false, "k3_kosul_korunmus": true, "k4_sayilar_ayni": true, "destekleniyor": false}
+{"id": 1, "text": "Do not take this medicine if you have liver disease.", "evidence": "If you have liver problems, talk to your doctor before taking this medicine."}
+-> {"id": 1, "reason": "The quote says to talk to a doctor; the sentence forbids the medicine.", "k1_no_added_info": true, "k2_same_meaning": false, "k3_condition_kept": true, "k4_same_numbers": true, "supported": false}
 
 Example 3 - approve, heading and list item (English item):
-{"id": 2, "metin": "If you find it hard to breathe, stop and go to hospital.", "kanit": "Stop taking this medicine and go to hospital at once if you get: ... Difficulty breathing"}
--> {"id": 2, "neden": "The heading gives the instruction, the item gives the sign; nothing added.", "k1_ek_bilgi_yok": true, "k2_anlam_ayni": true, "k3_kosul_korunmus": true, "k4_sayilar_ayni": true, "destekleniyor": true}
+{"id": 2, "text": "If you find it hard to breathe, stop and go to hospital.", "evidence": "Stop taking this medicine and go to hospital at once if you get: ... Difficulty breathing"}
+-> {"id": 2, "reason": "The heading gives the instruction, the item gives the sign; nothing added.", "k1_no_added_info": true, "k2_same_meaning": true, "k3_condition_kept": true, "k4_same_numbers": true, "supported": true}
 
 Example 4 - reject, added information (Turkish item):
-{"id": 3, "metin": "Günde 3 kez tok karnına alın.", "kanit": "Tabletler bir bardak su ile yutulmalıdır."}
--> {"id": 3, "neden": "Frequency and 'after food' are not in the quote.", "k1_ek_bilgi_yok": false, "k2_anlam_ayni": false, "k3_kosul_korunmus": true, "k4_sayilar_ayni": false, "destekleniyor": false}
+{"id": 3, "text": "Günde 3 kez tok karnına alın.", "evidence": "Tabletler bir bardak su ile yutulmalıdır."}
+-> {"id": 3, "reason": "Frequency and 'after food' are not in the quote.", "k1_no_added_info": false, "k2_same_meaning": false, "k3_condition_kept": true, "k4_same_numbers": false, "supported": false}
 
 [OUTPUT FORMAT]
 Return only valid JSON that matches this schema, one result per item with the same "id":
 {
-  "sonuclar": [
-    {"id": 0, "neden": "...", "k1_ek_bilgi_yok": true, "k2_anlam_ayni": true, "k3_kosul_korunmus": true, "k4_sayilar_ayni": true, "destekleniyor": true}
+  "results": [
+    {"id": 0, "reason": "...", "k1_no_added_info": true, "k2_same_meaning": true, "k3_condition_kept": true, "k4_same_numbers": true, "supported": true}
   ]
 }
 

@@ -1,47 +1,47 @@
-"""analyze() çıktısının veri sözleşmesi. Sadece Kişi 1 değiştirir.
+"""analyze() çıktısının veri sözleşmesi. Sadece Kişi 1 değiştirir. Anahtarlar Kişi 2'nin app.py'si ile aynı (İngilizce).
 
 Kartlar KT ile aynı dildedir (Türkçe veya İngilizce). JSON anahtarları her zaman aynıdır.
 
 {
-  "ilac_adi": "ÖRNEKİLAÇ 500 mg tablet",
-  "kartlar": {
-    "ne_icin":          [{"metin": "...", "kanit": "KT'den birebir alıntı"}],
-    "nasil_kullanilir": [...],
-    "hemen_doktora":    [...],
-    "yan_etkiler":      [...],
-    "saklama":          [...]
+  "drug_name": "EXAMPLEDRUG 500 mg tablets",
+  "cards": {
+    "what_for":       [{"text": "sade cümle", "evidence": "KT'den birebir alıntı"}],
+    "how_to_use":     [...],
+    "see_doctor_now": [...],
+    "side_effects":   [...],
+    "storage":        [...]
   },
-  "eczaciya_sorular": ["...", "..."],
-  "dogrulama": {
-    "desteklenmeyen": ["Kaynağı bulunamadığı için çıkarılan madde"],
-    "guven": "yuksek | orta | dusuk"
+  "pharmacist_questions": ["...", "..."],
+  "verification": {
+    "unsupported": ["kaynağı doğrulanamadığı için çıkarılan madde"],
+    "confidence": "high | medium | low"
   }
 }
 
-Hata olursa sadece {"hata": "açıklama"} döner.
+Hata olursa sadece {"error": "kullanıcıya gösterilecek açıklama"} döner.
 """
 
 # Kartların sırası arayüzdeki sırayla aynıdır
-KARTLAR = ("ne_icin", "nasil_kullanilir", "hemen_doktora", "yan_etkiler", "saklama")
+KARTLAR = ("what_for", "how_to_use", "see_doctor_now", "side_effects", "storage")
 
 KART_BASLIKLARI = {
-    "ne_icin": "Ne için kullanılır?",
-    "nasil_kullanilir": "Nasıl kullanılır?",
-    "hemen_doktora": "Hemen doktora başvurun",
-    "yan_etkiler": "Olası yan etkiler",
-    "saklama": "Nasıl saklanır?",
+    "what_for": "Ne için kullanılır?",
+    "how_to_use": "Nasıl kullanılır?",
+    "see_doctor_now": "Hemen doktora başvurun",
+    "side_effects": "Olası yan etkiler",
+    "storage": "Nasıl saklanır?",
 }
 
 # Arayüz İngilizce: kart başlıkları
 KART_BASLIKLARI_EN = {
-    "ne_icin": "What is it for?",
-    "nasil_kullanilir": "How do I take it?",
-    "hemen_doktora": "See a doctor right away if",
-    "yan_etkiler": "Possible side effects",
-    "saklama": "How do I store it?",
+    "what_for": "What is it for?",
+    "how_to_use": "How do I take it?",
+    "see_doctor_now": "See a doctor right away if",
+    "side_effects": "Possible side effects",
+    "storage": "How do I store it?",
 }
 
-GUVEN_DEGERLERI = ("yuksek", "orta", "dusuk")
+GUVEN_DEGERLERI = ("high", "medium", "low")
 
 MAX_MADDE = 5  # kart başına en fazla madde
 MAX_SORU = 5   # en fazla eczacı sorusu
@@ -49,15 +49,15 @@ MAX_SORU = 5   # en fazla eczacı sorusu
 
 def bos_sonuc(ilac_adi: str = "") -> dict:
     return {
-        "ilac_adi": ilac_adi,
-        "kartlar": {kart: [] for kart in KARTLAR},
-        "eczaciya_sorular": [],
-        "dogrulama": {"desteklenmeyen": [], "guven": "dusuk"},
+        "drug_name": ilac_adi,
+        "cards": {kart: [] for kart in KARTLAR},
+        "pharmacist_questions": [],
+        "verification": {"unsupported": [], "confidence": "low"},
     }
 
 
 def hata(aciklama: str) -> dict:
-    return {"hata": aciklama}
+    return {"error": aciklama}
 
 
 def _yazi(deger) -> str:
@@ -66,36 +66,36 @@ def _yazi(deger) -> str:
 
 def normalize(ham: dict) -> dict:
     """Modelden gelen JSON'u sözleşmeye uydurur: eksik alanı doldurur, fazlasını atar."""
-    sonuc = bos_sonuc(_yazi(ham.get("ilac_adi")))
+    sonuc = bos_sonuc(_yazi(ham.get("drug_name")))
 
-    kartlar = ham.get("kartlar") if isinstance(ham.get("kartlar"), dict) else {}
+    kartlar = ham.get("cards") if isinstance(ham.get("cards"), dict) else {}
     for kart in KARTLAR:
         maddeler = kartlar.get(kart) if isinstance(kartlar.get(kart), list) else []
         for madde in maddeler:
             if not isinstance(madde, dict):
                 continue
-            metin, kanit = _yazi(madde.get("metin")), _yazi(madde.get("kanit"))
-            if metin and len(sonuc["kartlar"][kart]) < MAX_MADDE:
-                sonuc["kartlar"][kart].append({"metin": metin, "kanit": kanit})
+            metin, kanit = _yazi(madde.get("text")), _yazi(madde.get("evidence"))
+            if metin and len(sonuc["cards"][kart]) < MAX_MADDE:
+                sonuc["cards"][kart].append({"text": metin, "evidence": kanit})
 
-    sorular = ham.get("eczaciya_sorular") if isinstance(ham.get("eczaciya_sorular"), list) else []
-    sonuc["eczaciya_sorular"] = [_yazi(s) for s in sorular if _yazi(s)][:MAX_SORU]
+    sorular = ham.get("pharmacist_questions") if isinstance(ham.get("pharmacist_questions"), list) else []
+    sonuc["pharmacist_questions"] = [_yazi(s) for s in sorular if _yazi(s)][:MAX_SORU]
 
-    dogrulama = ham.get("dogrulama") if isinstance(ham.get("dogrulama"), dict) else {}
-    desteklenmeyen = dogrulama.get("desteklenmeyen") if isinstance(dogrulama.get("desteklenmeyen"), list) else []
-    sonuc["dogrulama"]["desteklenmeyen"] = [_yazi(d) for d in desteklenmeyen if _yazi(d)]
-    if dogrulama.get("guven") in GUVEN_DEGERLERI:
-        sonuc["dogrulama"]["guven"] = dogrulama["guven"]
+    dogrulama = ham.get("verification") if isinstance(ham.get("verification"), dict) else {}
+    desteklenmeyen = dogrulama.get("unsupported") if isinstance(dogrulama.get("unsupported"), list) else []
+    sonuc["verification"]["unsupported"] = [_yazi(d) for d in desteklenmeyen if _yazi(d)]
+    if dogrulama.get("confidence") in GUVEN_DEGERLERI:
+        sonuc["verification"]["confidence"] = dogrulama["confidence"]
 
     return sonuc
 
 
 def madde_sayisi(sonuc: dict) -> int:
-    return sum(len(sonuc.get("kartlar", {}).get(kart, [])) for kart in KARTLAR)
+    return sum(len(sonuc.get("cards", {}).get(kart, [])) for kart in KARTLAR)
 
 
 # ---------- Modelin cevap şemaları (Gemini response_schema, schema-first) ----------
-# Alan sırası (property_ordering) önemlidir: model önce "analiz" alanını (adım adım düşünme) yazar, sonra kartları.
+# Alan sırası (property_ordering) önemlidir: model önce "analysis" alanını (adım adım düşünme) yazar, sonra kartları.
 
 def _nesne(alanlar: dict, sira: list[str]) -> dict:
     return {"type": "OBJECT", "properties": alanlar, "required": sira, "property_ordering": sira}
@@ -109,47 +109,47 @@ def _liste(oge: dict, en_fazla: int | None = None) -> dict:
 
 
 _YAZI = {"type": "STRING"}
-_MADDE = _nesne({"metin": _YAZI, "kanit": _YAZI}, ["metin", "kanit"])
+_MADDE = _nesne({"text": _YAZI, "evidence": _YAZI}, ["text", "evidence"])
 
 KART_CEVAP_SEMASI = _nesne(
     {
-        "analiz": _nesne(
+        "analysis": _nesne(
             {
-                "kt_mi": {"type": "BOOLEAN"},
-                "red_nedeni": _YAZI,
-                "uyarilar": _liste(_YAZI),
-                "belirsiz_noktalar": _liste(_YAZI),
-                "soru_adaylari": _liste(_nesne(
+                "is_leaflet": {"type": "BOOLEAN"},
+                "rejection_reason": _YAZI,
+                "warnings": _liste(_YAZI),
+                "open_points": _liste(_YAZI),
+                "question_candidates": _liste(_nesne(
                     {
-                        "eksen": {"type": "STRING", "enum": ["doz_zaman", "diger_ilaclar_besinler", "yan_etki_takibi", "ozel_durumlar", "unutma_saklama"]},
-                        "soru": _YAZI,
-                        "onem": {"type": "STRING", "enum": list(GUVEN_DEGERLERI)},
+                        "axis": {"type": "STRING", "enum": ["dose_timing", "other_medicines_food", "side_effect_watch", "special_groups", "missed_dose_storage"]},
+                        "question": _YAZI,
+                        "importance": {"type": "STRING", "enum": list(GUVEN_DEGERLERI)},
                     },
-                    ["eksen", "soru", "onem"],
+                    ["axis", "question", "importance"],
                 )),
             },
-            ["kt_mi", "red_nedeni", "uyarilar", "belirsiz_noktalar", "soru_adaylari"],
+            ["is_leaflet", "rejection_reason", "warnings", "open_points", "question_candidates"],
         ),
-        "ilac_adi": _YAZI,
-        "kartlar": _nesne({kart: _liste(_MADDE, MAX_MADDE) for kart in KARTLAR}, list(KARTLAR)),
-        "eczaciya_sorular": _liste(_YAZI, MAX_SORU),
+        "drug_name": _YAZI,
+        "cards": _nesne({kart: _liste(_MADDE, MAX_MADDE) for kart in KARTLAR}, list(KARTLAR)),
+        "pharmacist_questions": _liste(_YAZI, MAX_SORU),
     },
-    ["analiz", "ilac_adi", "kartlar", "eczaciya_sorular"],
+    ["analysis", "drug_name", "cards", "pharmacist_questions"],
 )
 
-DOGRULAYICI_KRITERLER = ("k1_ek_bilgi_yok", "k2_anlam_ayni", "k3_kosul_korunmus", "k4_sayilar_ayni")
+DOGRULAYICI_KRITERLER = ("k1_no_added_info", "k2_same_meaning", "k3_condition_kept", "k4_same_numbers")
 
 DOGRULAYICI_CEVAP_SEMASI = _nesne(
     {
-        "sonuclar": _liste(_nesne(
-            {"id": {"type": "INTEGER"}, "neden": _YAZI, **{k: {"type": "BOOLEAN"} for k in DOGRULAYICI_KRITERLER}, "destekleniyor": {"type": "BOOLEAN"}},
-            ["id", "neden", *DOGRULAYICI_KRITERLER, "destekleniyor"],
+        "results": _liste(_nesne(
+            {"id": {"type": "INTEGER"}, "reason": _YAZI, **{k: {"type": "BOOLEAN"} for k in DOGRULAYICI_KRITERLER}, "supported": {"type": "BOOLEAN"}},
+            ["id", "reason", *DOGRULAYICI_KRITERLER, "supported"],
         )),
     },
-    ["sonuclar"],
+    ["results"],
 )
 
 DUZELTME_CEVAP_SEMASI = _nesne(
-    {"duzeltmeler": _liste(_nesne({"id": {"type": "INTEGER"}, "metin": _YAZI}, ["id", "metin"]))},
-    ["duzeltmeler"],
+    {"fixes": _liste(_nesne({"id": {"type": "INTEGER"}, "text": _YAZI}, ["id", "text"]))},
+    ["fixes"],
 )

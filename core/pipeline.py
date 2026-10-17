@@ -1,14 +1,14 @@
 """analyze(): KT metni -> 5 sade kart, eczacıya sorular ve doğrulama sonucu.
 
-KT Türkçe veya İngilizce olabilir; kartlar KT ile aynı dilde üretilir, "kanit" her zaman KT'nin kendi dilindedir.
+KT Türkçe veya İngilizce olabilir; kartlar KT ile aynı dilde üretilir, "evidence" her zaman KT'nin kendi dilindedir.
 
 Akış (Draft -> Validate -> Finalize):
   1. Taslak: Prompt 1 (prompts/01_kartlar.txt) kartları ve eczacı sorularını üretir.
-  2. Kod kontrolü: her "kanit" gerçekten KT metninde geçiyor mu? (difflib, eşik config.KANIT_ESIK)
+  2. Kod kontrolü: her "evidence" gerçekten KT metninde geçiyor mu? (difflib, eşik config.KANIT_ESIK)
      Sayılar tutarlı mı? (kanıttaki sayılar KT'de, sade cümledeki sayılar kanıtta)
   3. LLM kontrolü: Prompt 2 (prompts/02_dogrulayici.txt) her sade cümleyi 4 kritere göre alıntısıyla karşılaştırır.
   4. Düzeltme: LLM'in reddettiği maddeler gerekçesiyle bir kez yeniden yazılır (03_duzeltme.txt), 2. ve 3. adımdan tekrar geçer.
-  5. Son hal: geçemeyen madde kartlardan çıkarılır, "desteklenmeyen" listesine yazılır, güven hesaplanır.
+  5. Son hal: geçemeyen madde kartlardan çıkarılır, "unsupported" listesine yazılır, güven hesaplanır.
      Son kontrol insandadır: her madde kaynağıyla gösterilir, belirsizlikler eczacıya soru olarak verilir.
 """
 import json
@@ -42,7 +42,7 @@ MESAJLAR = {
         "tr": "Talimattan sade bilgi çıkarılamadı. Lütfen eczacınıza danışın.",
         "en": "No plain information could be taken from this leaflet. Please ask your pharmacist.",
     },
-    "hata": {
+    "error": {
         "tr": "Analiz yapılamadı. Lütfen biraz sonra tekrar deneyin.",
         "en": "The analysis could not be completed. Please try again in a moment.",
     },
@@ -74,8 +74,8 @@ DIL_ADLARI = {"tr": "Turkish", "en": "English"}
 
 def _cikti_dili(ham: dict) -> str | None:
     """Modelin yazdığı sade cümlelerin dili. Cümle yoksa None."""
-    kartlar = ham.get("kartlar") if isinstance(ham.get("kartlar"), dict) else {}
-    metinler = [m.get("metin", "") for k in kartlar.values() if isinstance(k, list) for m in k if isinstance(m, dict)]
+    kartlar = ham.get("cards") if isinstance(ham.get("cards"), dict) else {}
+    metinler = [m.get("text", "") for k in kartlar.values() if isinstance(k, list) for m in k if isinstance(m, dict)]
     metin = " ".join(x for x in metinler if isinstance(x, str))
     return dil_tespit(metin) if metin.strip() else None
 
@@ -252,14 +252,14 @@ def sayilar_tutarli(metin: str, kanit: str, kt_metni: str) -> bool:
 # ---------- LLM kontrolü: sade cümle alıntıya sadık mı? ----------
 
 def _llm_kontrol(maddeler: list[dict]) -> dict[int, dict] | None:
-    """{id: sonuç} döndürür. Sonuçta 4 kriter ve "destekleniyor" var. Doğrulayıcı çağrısı başarısız olursa None."""
+    """{id: sonuç} döndürür. Sonuçta 4 kriter ve "supported" var. Doğrulayıcı çağrısı başarısız olursa None."""
     if not maddeler:
         return {}
     sistem, talimat = _prompt_yukle(config.PROMPT_DOGRULAYICI)
     girdi = _veri_temizle(json.dumps(maddeler, ensure_ascii=False, indent=1))
     try:
         sonuclar = _ask_json(talimat.replace("{maddeler}", girdi), sistem, schema.DOGRULAYICI_CEVAP_SEMASI,
-                             model=config.DOGRULAYICI_MODEL).get("sonuclar", [])
+                             model=config.DOGRULAYICI_MODEL).get("results", [])
     except Exception:
         return None
     kararlar = {}
@@ -267,24 +267,24 @@ def _llm_kontrol(maddeler: list[dict]) -> dict[int, dict] | None:
         if not isinstance(s, dict) or not isinstance(s.get("id"), int):
             continue
         kriterler = {k: s.get(k) for k in schema.DOGRULAYICI_KRITERLER}
-        if not isinstance(s.get("destekleniyor"), bool) or not all(isinstance(v, bool) for v in kriterler.values()):
+        if not isinstance(s.get("supported"), bool) or not all(isinstance(v, bool) for v in kriterler.values()):
             continue
-        # Model "destekleniyor" dese bile bir kriter hayır ise madde reddedilir (karar kodda verilir)
-        kararlar[s["id"]] = {**kriterler, "destekleniyor": s["destekleniyor"] and all(kriterler.values()),
-                             "neden": s.get("neden", "")}
+        # Model "supported" dese bile bir kriter hayır ise madde reddedilir (karar kodda verilir)
+        kararlar[s["id"]] = {**kriterler, "supported": s["supported"] and all(kriterler.values()),
+                             "reason": s.get("reason", "")}
     return kararlar
 
 
 def _guven(kalan: int, cikarilan: int, dogrulayici_tam: bool, dogrulayici_calisti: bool = True) -> str:
     # Hiçbir madde LLM doğrulayıcıdan geçmediyse güven düşüktür; arayüz "eczacınızla teyit edin" uyarısını gösterir
     if kalan == 0 or not dogrulayici_calisti:
-        return "dusuk"
+        return "low"
     oran = cikarilan / (kalan + cikarilan)
     if oran == 0 and dogrulayici_tam:
-        return "yuksek"
+        return "high"
     if oran <= 0.2:
-        return "orta"
-    return "dusuk"
+        return "medium"
+    return "low"
 
 
 def _duzelt(reddedilenler: list[dict]) -> dict[int, str]:
@@ -295,38 +295,38 @@ def _duzelt(reddedilenler: list[dict]) -> dict[int, str]:
         cevap = _ask_json(talimat.replace("{maddeler}", girdi), sistem, schema.DUZELTME_CEVAP_SEMASI)
     except Exception:
         return {}
-    duzeltmeler = cevap.get("duzeltmeler") if isinstance(cevap.get("duzeltmeler"), list) else []
-    return {d["id"]: d["metin"].strip() for d in duzeltmeler
-            if isinstance(d, dict) and isinstance(d.get("id"), int) and isinstance(d.get("metin"), str) and d["metin"].strip()}
+    duzeltmeler = cevap.get("fixes") if isinstance(cevap.get("fixes"), list) else []
+    return {d["id"]: d["text"].strip() for d in duzeltmeler
+            if isinstance(d, dict) and isinstance(d.get("id"), int) and isinstance(d.get("text"), str) and d["text"].strip()}
 
 
 def dogrula(sonuc: dict, kt_metni: str) -> tuple[dict, dict]:
     """Kod + LLM kontrolü, gerekirse bir düzeltme turu. Geçemeyen maddeleri kartlardan çıkarır, guven'i hesaplar.
     (sonuc, detay) döndürür."""
-    desteklenmeyen = list(sonuc["dogrulama"]["desteklenmeyen"])
+    desteklenmeyen = list(sonuc["verification"]["unsupported"])
     detay = {"kod_elenen": 0, "sayi_elenen": 0, "llm_ilk_ret": 0, "duzeltilen": 0, "llm_elenen": 0,
              "kriter_ret": {k: 0 for k in schema.DOGRULAYICI_KRITERLER},
              "reddedilenler": []}  # rapor için: hangi madde, hangi gerekçeyle çıkarıldı
 
     def reddet(madde: dict, kontrol: str, neden: str) -> None:
-        desteklenmeyen.append(madde["metin"])
-        detay["reddedilenler"].append({**madde, "kontrol": kontrol, "neden": neden})
+        desteklenmeyen.append(madde["text"])
+        detay["reddedilenler"].append({**madde, "kontrol": kontrol, "reason": neden})
 
     # 1) Kod kontrolü
     adaylar = []  # (sıra, kart, madde); sıra kartlardaki ilk yerini korumak için
     for kart in schema.KARTLAR:
-        for madde in sonuc["kartlar"][kart]:
-            if not madde["kanit"] or kanit_skoru(madde["kanit"], kt_metni) < config.KANIT_ESIK:
+        for madde in sonuc["cards"][kart]:
+            if not madde["evidence"] or kanit_skoru(madde["evidence"], kt_metni) < config.KANIT_ESIK:
                 detay["kod_elenen"] += 1
                 reddet(madde, "kod", "quote not found in leaflet")
-            elif not sayilar_tutarli(madde["metin"], madde["kanit"], kt_metni):
+            elif not sayilar_tutarli(madde["text"], madde["evidence"], kt_metni):
                 detay["sayi_elenen"] += 1
                 reddet(madde, "sayi", "numbers differ")
             else:
                 adaylar.append((len(adaylar), kart, madde))
 
     # 2) LLM kontrolü (sadece kod kontrolünü geçenler)
-    kararlar = _llm_kontrol([{"id": i, "metin": m["metin"], "kanit": m["kanit"]} for i, _, m in adaylar])
+    kararlar = _llm_kontrol([{"id": i, "text": m["text"], "evidence": m["evidence"]} for i, _, m in adaylar])
     dogrulayici_tam = kararlar is not None and len(kararlar) == len(adaylar)
     detay["dogrulayici_calisti"] = kararlar is not None
 
@@ -334,7 +334,7 @@ def dogrula(sonuc: dict, kt_metni: str) -> tuple[dict, dict]:
     for sira, kart, madde in adaylar:
         karar = (kararlar or {}).get(sira)
         # Doğrulayıcı çalışmadıysa veya bu maddeye cevap vermediyse madde kalır, güven düşürülür
-        if karar is not None and not karar["destekleniyor"]:
+        if karar is not None and not karar["supported"]:
             ilk_ret.append((sira, kart, madde, karar))
             for k in schema.DOGRULAYICI_KRITERLER:
                 detay["kriter_ret"][k] += not karar[k]
@@ -345,27 +345,27 @@ def dogrula(sonuc: dict, kt_metni: str) -> tuple[dict, dict]:
     # 3) Düzeltme (Finalize): reddedilenler gerekçeleriyle bir kez yeniden yazılır, sonra aynı kontrollerden tekrar geçer
     duzeltilmis = {}
     if config.DUZELTME_ACIK and ilk_ret:
-        yeni = _duzelt([{"id": s, "metin": m["metin"], "kanit": m["kanit"], "neden": k["neden"]} for s, _, m, k in ilk_ret])
-        tekrar = [(s, kart, {"metin": yeni[s], "kanit": m["kanit"]}) for s, kart, m, _ in ilk_ret
-                  if s in yeni and sayilar_tutarli(yeni[s], m["kanit"], kt_metni)]
-        kararlar2 = _llm_kontrol([{"id": s, "metin": m["metin"], "kanit": m["kanit"]} for s, _, m in tekrar]) or {}
-        duzeltilmis = {s: (kart, m) for s, kart, m in tekrar if kararlar2.get(s, {}).get("destekleniyor")}
+        yeni = _duzelt([{"id": s, "text": m["text"], "evidence": m["evidence"], "reason": k["reason"]} for s, _, m, k in ilk_ret])
+        tekrar = [(s, kart, {"text": yeni[s], "evidence": m["evidence"]}) for s, kart, m, _ in ilk_ret
+                  if s in yeni and sayilar_tutarli(yeni[s], m["evidence"], kt_metni)]
+        kararlar2 = _llm_kontrol([{"id": s, "text": m["text"], "evidence": m["evidence"]} for s, _, m in tekrar]) or {}
+        duzeltilmis = {s: (kart, m) for s, kart, m in tekrar if kararlar2.get(s, {}).get("supported")}
     for sira, kart, madde, karar in ilk_ret:
         if sira in duzeltilmis:
             kalanlar.append((sira, *duzeltilmis[sira]))
         else:
             detay["llm_elenen"] += 1
-            reddet(madde, "llm", karar["neden"])
+            reddet(madde, "llm", karar["reason"])
     detay["duzeltilen"] = len(duzeltilmis)
 
     kartlar = {kart: [] for kart in schema.KARTLAR}
     for _, kart, madde in sorted(kalanlar, key=lambda x: x[0]):
         kartlar[kart].append(madde)
-    sonuc["kartlar"] = kartlar
+    sonuc["cards"] = kartlar
     kalan = schema.madde_sayisi(sonuc)
-    sonuc["dogrulama"] = {
-        "desteklenmeyen": desteklenmeyen,
-        "guven": _guven(kalan, detay["kod_elenen"] + detay["sayi_elenen"] + detay["llm_elenen"], dogrulayici_tam,
+    sonuc["verification"] = {
+        "unsupported": desteklenmeyen,
+        "confidence": _guven(kalan, detay["kod_elenen"] + detay["sayi_elenen"] + detay["llm_elenen"], dogrulayici_tam,
                         detay["dogrulayici_calisti"]),
     }
     return sonuc, detay
@@ -393,20 +393,20 @@ def analiz_detayli(kt_metni: str) -> tuple[dict, dict]:
         # Çıktı kontrolü: kartlar KT ile aynı dilde mi? Değilse bir kez uyararak tekrar sor
         if _cikti_dili(ham) not in (None, dil):
             uyari = (f"\n\nIMPORTANT: Your previous answer was not in {DIL_ADLARI[dil]}. "
-                     f"Write every \"metin\" and question in {DIL_ADLARI[dil]}.")
+                     f"Write every \"text\" and question in {DIL_ADLARI[dil]}.")
             ham = _ask_json(talimat + uyari, sistem, schema.KART_CEVAP_SEMASI)
 
-        analiz = ham.get("analiz") if isinstance(ham.get("analiz"), dict) else {}
+        analiz = ham.get("analysis") if isinstance(ham.get("analysis"), dict) else {}
         detay = {
             "dil": dil,
             "kirpildi": kirpildi,
             "cikti_dili": _cikti_dili(ham),
-            "uyari_sayisi": len(analiz.get("uyarilar") or []),
-            "belirsiz_sayisi": len(analiz.get("belirsiz_noktalar") or []),
-            "soru_adayi_sayisi": len(analiz.get("soru_adaylari") or []),
+            "uyari_sayisi": len(analiz.get("warnings") or []),
+            "belirsiz_sayisi": len(analiz.get("open_points") or []),
+            "soru_adayi_sayisi": len(analiz.get("question_candidates") or []),
         }
-        if analiz.get("kt_mi") is False:
-            return schema.hata(_mesaj("kt_degil", dil)), {**detay, "red_nedeni": analiz.get("red_nedeni", "")}
+        if analiz.get("is_leaflet") is False:
+            return schema.hata(_mesaj("kt_degil", dil)), {**detay, "rejection_reason": analiz.get("rejection_reason", "")}
 
         sonuc = schema.normalize(ham)
         detay["taslak_madde"] = schema.madde_sayisi(sonuc)
@@ -418,7 +418,7 @@ def analiz_detayli(kt_metni: str) -> tuple[dict, dict]:
     except Exception as e:
         # Kullanıcıya sade mesaj; teknik ayrıntı terminale (Streamlit konsolu) ve ölçüm detayına
         print(f"[analyze] {type(e).__name__}: {e}", file=sys.stderr)
-        return schema.hata(_mesaj("kota" if isinstance(e, KotaHatasi) else "hata", dil)), {"dil": dil, "hata_detay": str(e)}
+        return schema.hata(_mesaj("kota" if isinstance(e, KotaHatasi) else "error", dil)), {"dil": dil, "hata_detay": str(e)}
 
 
 def analyze(kt_metni: str) -> dict:

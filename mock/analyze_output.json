@@ -1,53 +1,53 @@
 {
-  "ilac_adi": "EXAMPLEDRUG 500 mg tablets",
-  "kartlar": {
-    "ne_icin": [
+  "drug_name": "EXAMPLEDRUG 500 mg tablets",
+  "cards": {
+    "what_for": [
       {
-        "metin": "It eases pain and lowers fever.",
-        "kanit": "EXAMPLEDRUG is used to treat mild to moderate pain and fever."
+        "text": "It eases pain and lowers fever.",
+        "evidence": "EXAMPLEDRUG is used to treat mild to moderate pain and fever."
       }
     ],
-    "nasil_kullanilir": [
+    "how_to_use": [
       {
-        "metin": "Take it exactly as your doctor told you.",
-        "kanit": "Always take this medicine exactly as your doctor has told you."
+        "text": "Take it exactly as your doctor told you.",
+        "evidence": "Always take this medicine exactly as your doctor has told you."
       },
       {
-        "metin": "Swallow the tablet with a glass of water.",
-        "kanit": "Swallow the tablets with a glass of water."
+        "text": "Swallow the tablet with a glass of water.",
+        "evidence": "Swallow the tablets with a glass of water."
       }
     ],
-    "hemen_doktora": [
+    "see_doctor_now": [
       {
-        "metin": "If your face or throat swells, stop and call your doctor now.",
-        "kanit": "If you notice swelling of the face, lips, tongue or throat, stop taking this medicine and contact your doctor immediately"
+        "text": "If your face or throat swells, stop and call your doctor now.",
+        "evidence": "If you notice swelling of the face, lips, tongue or throat, stop taking this medicine and contact your doctor immediately"
       }
     ],
-    "yan_etkiler": [
+    "side_effects": [
       {
-        "metin": "Some people may feel sick.",
-        "kanit": "Common: nausea"
+        "text": "Some people may feel sick.",
+        "evidence": "Common: nausea"
       }
     ],
-    "saklama": [
+    "storage": [
       {
-        "metin": "Store it below 25 degrees, in a dry place.",
-        "kanit": "Store below 25°C in a dry place."
+        "text": "Store it below 25 degrees, in a dry place.",
+        "evidence": "Store below 25°C in a dry place."
       },
       {
-        "metin": "Keep it out of the sight and reach of children.",
-        "kanit": "Keep this medicine out of the sight and reach of children."
+        "text": "Keep it out of the sight and reach of children.",
+        "evidence": "Keep this medicine out of the sight and reach of children."
       }
     ]
   },
-  "eczaciya_sorular": [
+  "pharmacist_questions": [
     "What is the most I can take in one day?",
     "Can I take it with my blood pressure medicine?"
   ],
-  "dogrulama": {
-    "desteklenmeyen": [
+  "verification": {
+    "unsupported": [
       "Take it on an empty stomach."
     ],
-    "guven": "orta"
+    "confidence": "medium"
   }
 }
