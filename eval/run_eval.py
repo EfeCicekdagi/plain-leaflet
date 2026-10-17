@@ -35,8 +35,8 @@ SADAKAT_CSV = EVAL / "sadakat_kontrol.csv"
 SONUCLAR = EVAL / "results.md"
 SADAKAT_ORNEK = 3  # ilaç başına elle kontrol edilecek madde
 # Sadakat etiketlerini kim koydu; rapora aynen yazılır. Bir insan etiketlerse bunu değiştirin.
-SADAKAT_KONTROL_EDEN = ("Claude (Anthropic), an AI model independent of the Gemini pipeline. "
-                        "This is not a human review")
+SADAKAT_KONTROL_EDEN = ("labelled by Claude (Anthropic), an AI model independent of the Gemini pipeline, "
+                        "then all items reviewed and confirmed by a team member (Efe Çiçekdağı)")
 
 
 def sade_metin(sonuc: dict) -> str:

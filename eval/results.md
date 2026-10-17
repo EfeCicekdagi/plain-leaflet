@@ -80,7 +80,7 @@ Target: below 5% (Samsung Innovation Campus GenAI course, Chapter 4, Responsible
 
 45 randomly sampled final items (3 per medicine) were checked against their quotes with the verifier's four criteria: "Is the plain sentence faithful to its quote?"
 
-Reviewer: Claude (Anthropic), an AI model independent of the Gemini pipeline. This is not a human review.
+Reviewer: labelled by Claude (Anthropic), an AI model independent of the Gemini pipeline, then all items reviewed and confirmed by a team member (Efe Çiçekdağı).
 
 **Faithfulness: 42/45 = 93.3%**
 
