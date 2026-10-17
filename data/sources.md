@@ -31,9 +31,9 @@ medicines and Xarelto" section lists "other medicines to reduce blood clotting
 (e.g. enoxaparin, clopidogrel or vitamin K antagonists such as warfarin and
 acenocoumarol)". Svariya has the same sentence.
 
-Backup pair: **Entresto (sacubitril/valsartan) + Rasilez (aliskiren).** Each
-leaflet names the other's active substance, so the warning shows in both
-directions.
+Backup pair: **Entresto (sacubitril/valsartan) + Rasilez (aliskiren).** The
+"Other medicines and Entresto" section names aliskiren. Rasilez names valsartan
+only under "Do not take Rasilez", so the warning shows in one direction.
 
 ## Notes
 
