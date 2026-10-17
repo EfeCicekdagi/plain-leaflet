@@ -2,7 +2,7 @@
 results.md İngilizce yazılır (rapor İngilizce).
 
 Kullanım (repo kökünden):
-  python -m eval.run_eval                        # data/kt/*.txt üzerinde çalışır
+  python -m eval.run_eval                        # data/kt/txt/*.txt üzerinde çalışır
   python -m eval.run_eval --klasor data/samples  # başka klasör
   python -m eval.run_eval --onbellek             # eval/outputs/ altında çıktısı olan ilaçlar için modeli tekrar çağırmaz
   python -m eval.run_eval --sadakat              # elle doldurulan eval/sadakat_kontrol.csv'den yüzdeyi hesaplar, results.md'yi günceller
@@ -259,7 +259,7 @@ def calistir(klasor: Path, onbellek: bool, bekle: float) -> None:
 
 def main() -> None:
     p = argparse.ArgumentParser(description="İlaç Rehberim ölçüm scripti")
-    p.add_argument("--klasor", type=Path, default=KOK / "data" / "kt", help="KT .txt dosyalarının klasörü")
+    p.add_argument("--klasor", type=Path, default=KOK / "data" / "kt" / "txt", help="KT .txt dosyalarının klasörü")
     p.add_argument("--onbellek", action="store_true", help="eval/outputs/ altındaki eski çıktıları kullan")
     p.add_argument("--bekle", type=float, default=5.0, help="ilaçlar arası bekleme (sn), kota için")
     p.add_argument("--sadakat", action="store_true", help="sadece sadakat CSV'sini okuyup results.md'yi güncelle")

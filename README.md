@@ -101,8 +101,8 @@ Ease), how many items each check removed, quote matches, and the hallucination
 rate.
 
 ```bash
-python -m eval.run_eval --klasor data/kt/txt   # real model calls, needs a key
-python -m eval.run_eval --klasor data/kt/txt --onbellek   # reuse saved outputs
+python -m eval.run_eval              # data/kt/txt, real model calls, needs a key
+python -m eval.run_eval --onbellek   # reuse saved outputs in eval/outputs/
 ```
 
 Do not run the evaluation in mock mode: every leaflet would get the same sample
