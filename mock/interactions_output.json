@@ -1,9 +1,9 @@
 [
   {
-    "ilac_a": "VARFARİN 5 mg tablet",
-    "ilac_b": "İBUPROFEN 400 mg tablet",
-    "eslesen": "ibuprofen",
-    "kanit": "Aspirin, ibuprofen gibi ağrı kesiciler kanama riskini artırabilir.",
-    "mesaj": "Bu iki ilacı birlikte kullanmadan önce eczacınıza veya doktorunuza danışın."
+    "drug_a": "Warfarin 5 mg tablets",
+    "drug_b": "Ibuprofen 400 mg tablets",
+    "matched": "ibuprofen",
+    "evidence": "Painkillers such as aspirin or ibuprofen may increase the risk of bleeding.",
+    "message": "Ask your pharmacist or doctor before taking these two medicines together."
   }
 ]
