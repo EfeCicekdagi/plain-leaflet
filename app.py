@@ -17,8 +17,8 @@ import streamlit.components.v1 as components
 
 from core.inputs import image_to_text, pdf_to_text
 from core.pipeline import analyze
-from safety.interactions import check_interactions
-from safety.sections import extract_leaflet, find_other_medicines
+from safety.interactions import check_interactions, explain_match
+from safety.sections import extract_leaflet, find_drug_name, find_other_medicines
 
 # Card keys from the data contract, in display order: (key, title, icon)
 CARDS = [
@@ -161,7 +161,7 @@ html, body, .stApp, [data-testid="stMarkdownContainer"], p, li, h1, h2, h3, smal
     margin: 0.4rem 0; padding: 0.5rem 0.8rem; background: #fff;
     border-left: 4px solid var(--red); border-radius: 6px; font-size: 0.9rem; color: var(--ink) !important;
 }
-.alert small { color: var(--muted); }
+.alert .why { font-size: 0.95rem; color: var(--ink); margin-top: 0.5rem; }
 .summary { font-size: 1.15rem; font-weight: 700; margin: 1rem 0 0.2rem; }
 </style>
 """
@@ -247,9 +247,14 @@ def is_photo(upload) -> bool:
     return Path(upload.name).suffix.lower() in {".png", ".jpg", ".jpeg", ".webp"}
 
 
-def drug_label(upload) -> str:
-    """Use the file name without extension as the drug name."""
-    return Path(upload.name).stem.replace("_", " ").strip() or upload.name
+def drug_label(upload, text: str, taken: dict) -> str:
+    """The medicine name from the leaflet itself, so a misnamed file cannot mislabel it.
+
+    Falls back to the file name; adds the file name when two uploads share a name.
+    """
+    file_name = Path(upload.name).stem.replace("_", " ").strip() or upload.name
+    name = find_drug_name(text) or file_name
+    return f"{name} ({upload.name})" if name in taken else name
 
 
 def esc(value) -> str:
@@ -465,14 +470,17 @@ def show_warnings(check: dict) -> None:
     count = len(warnings)
     st.markdown(f'<p class="summary">We found {count} warning{"s" if count > 1 else ""}.</p>',
                 unsafe_allow_html=True)
+    leaflets = check.get("leaflets") or {}
     for warning in warnings:
         drug_a, drug_b = esc(warning.get("drug_a")), esc(warning.get("drug_b"))
+        reason = explain_match(warning, leaflets.get(warning.get("drug_b"), ""))
         st.markdown(
             f'<div class="alert"><h3>⚠️ {drug_a} + {drug_b}</h3>'
             f'<p><b>{esc(warning.get("message"))}</b></p>'
-            f'<p>The leaflet of <b>{drug_a}</b> says:</p>'
+            f'<p>The “Other medicines” section of the <b>{drug_a}</b> leaflet says:</p>'
             f'<div class="quote">{esc(warning.get("evidence"))}</div>'
-            f'<small>Found the word “{esc(warning.get("matched"))}”.</small></div>',
+            f'<p class="why"><b>Why this matters:</b> it mentions “{esc(warning.get("matched"))}”. '
+            f'{esc(reason)}</p></div>',
             unsafe_allow_html=True,
         )
 
@@ -519,7 +527,7 @@ def medicines_tab() -> None:
                 for upload in uploads:
                     text = leaflet_from_pdf(upload.getvalue())
                     if text.strip():
-                        leaflets[drug_label(upload)] = text
+                        leaflets[drug_label(upload, text, leaflets)] = text
                     else:
                         unreadable.append(upload.name)
                 # A leaflet without an "Other medicines" section cannot warn about
@@ -530,6 +538,7 @@ def medicines_tab() -> None:
                     "unreadable": unreadable,
                     "unchecked": unchecked,
                     "checked": len(leaflets) - len(unchecked),
+                    "leaflets": leaflets,  # kept in memory to explain each match
                 }
 
     if "medicines_result" in st.session_state:

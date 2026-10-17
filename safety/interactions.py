@@ -25,30 +25,36 @@ SYNONYMS = {
 # aspirin would warn on every NSAID line.
 DRUG_CLASSES = {
     "nsaid": {
+        "label": "NSAIDs (anti-inflammatory painkillers)",
         "names": ["nsaid", "nsaids", "non-steroidal anti-inflammatory",
                   "anti-inflammatory medicines", "anti-inflammatory drugs"],
         "substances": ["ibuprofen", "naproxen", "diclofenac", "ketoprofen", "dexketoprofen",
                        "indometacin", "meloxicam", "piroxicam", "celecoxib", "etoricoxib"],
     },
     "anticoagulant": {
+        "label": "anticoagulants (blood thinners)",
         "names": ["anticoagulant", "anticoagulants", "anti-coagulant", "anti-coagulants"],
         "substances": ["rivaroxaban", "apixaban", "edoxaban", "dabigatran", "warfarin",
                        "acenocoumarol", "phenprocoumon", "heparin", "enoxaparin"],
     },
     "antiplatelet": {
+        "label": "antiplatelets (medicines that stop blood cells sticking together)",
         "names": ["antiplatelet", "antiplatelets", "anti-platelet", "platelet aggregation inhibitors"],
         "substances": ["clopidogrel", "prasugrel", "ticagrelor", "ticlopidine"],
     },
     "proton pump inhibitor": {
+        "label": "proton pump inhibitors (medicines that reduce stomach acid)",
         "names": ["proton pump inhibitor", "proton pump inhibitors", "ppi", "ppis"],
         "substances": ["esomeprazole", "omeprazole", "pantoprazole", "lansoprazole", "rabeprazole"],
     },
     "angiotensin ii receptor blocker": {
+        "label": "angiotensin II receptor blockers (blood pressure medicines)",
         "names": ["angiotensin ii receptor blocker", "angiotensin ii receptor blockers",
                   "angiotensin receptor blocker", "angiotensin receptor blockers"],
         "substances": ["valsartan", "losartan", "candesartan", "irbesartan", "telmisartan", "olmesartan"],
     },
     "statin": {
+        "label": "statins (cholesterol medicines)",
         "names": ["statin", "statins"],
         "substances": ["atorvastatin", "simvastatin", "rosuvastatin", "pravastatin",
                        "lovastatin", "fluvastatin", "pitavastatin"],
@@ -113,6 +119,30 @@ def _find(term: str, sentences: list[str]) -> str:
         if pattern.search(sentence.lower()):
             return sentence
     return ""
+
+
+def explain_match(warning: dict, leaflet_b: str) -> str:
+    """Say in plain English why the matched word points to drug B.
+
+    The link always comes from B's own leaflet: its active substance, a
+    synonym of it, its drug class or its name.
+    """
+    try:
+        term, drug_b = warning["matched"], warning["drug_b"]
+        substances = find_active_substances(extract_leaflet(leaflet_b))
+        if term in substances:
+            return f"The {drug_b} leaflet says it contains {term}."
+        for substance in substances:
+            if term in SYNONYMS.get(substance, []):
+                return f"{term.capitalize()} is another name for {substance}, which {drug_b} contains."
+        for drug_class in DRUG_CLASSES.values():
+            if term in drug_class["names"]:
+                substance = next((s for s in substances if s in drug_class["substances"]), "")
+                if substance:
+                    return f"{drug_b} contains {substance}, one of the {drug_class['label']}."
+        return f"“{term}” is the name of {drug_b}."
+    except Exception:
+        return ""
 
 
 def check_interactions(leaflets: dict[str, str]) -> list[dict]:

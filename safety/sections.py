@@ -50,6 +50,12 @@ SECTION_END = re.compile(
 
 MAX_SECTION_CHARS = 8000
 
+# "Package leaflet: Information for the user" is followed by the product line,
+# e.g. "Xenleta 600 mg film-coated tablets"
+LEAFLET_TITLE = re.compile(
+    r"Package leaflet\s*:\s*Information for the (?:patient|user)\s*\n\s*([^\n]+)", re.IGNORECASE
+)
+
 
 def extract_leaflet(text: str) -> str:
     """Return only the patient leaflet part of an EMA PDF text.
@@ -64,6 +70,20 @@ def extract_leaflet(text: str) -> str:
         return text
     leaflet = text[matches[-1].end():].strip()
     return leaflet or text
+
+
+def find_drug_name(text: str) -> str:
+    """Return the medicine name from the leaflet title, without the strength.
+
+    "Xenleta 600 mg film-coated tablets" -> "Xenleta". "" if not found.
+    """
+    if not isinstance(text, str):
+        return ""
+    match = LEAFLET_TITLE.search(text)
+    if not match:
+        return ""
+    name = re.split(r"\s+\d", match.group(1).strip(), maxsplit=1)[0]
+    return re.sub(r"\s+", " ", name).strip(" ,.")
 
 
 def _clean_substance(raw: str) -> str:
