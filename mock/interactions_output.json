@@ -1,0 +1,9 @@
+[
+  {
+    "drug_a": "Warfarin 5 mg tablets",
+    "drug_b": "Ibuprofen 400 mg tablets",
+    "matched": "ibuprofen",
+    "evidence": "Painkillers such as aspirin or ibuprofen may increase the risk of bleeding.",
+    "message": "Ask your pharmacist or doctor before taking these two medicines together."
+  }
+]
