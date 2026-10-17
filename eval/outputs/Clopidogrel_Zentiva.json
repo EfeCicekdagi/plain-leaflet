@@ -1,0 +1,123 @@
+{
+  "sonuc": {
+    "drug_name": "Clopidogrel Zentiva 75 mg film-coated tablets",
+    "cards": {
+      "what_for": [
+        {
+          "text": "It helps prevent blood clots from forming in hardened blood vessels.",
+          "evidence": "Clopidogrel Zentiva is taken by adults to prevent blood clots (thrombi) forming in hardened blood vessels (arteries), a process known as atherothrombosis, which can lead to atherothrombotic events (such as stroke, heart attack, or death)."
+        }
+      ],
+      "how_to_use": [
+        {
+          "text": "Take one 75 mg tablet per day at the same time each day.",
+          "evidence": "The recommended dose, including for patients with a condition called ‘atrial fibrillation’ (an irregular heartbeat), is one 75 mg tablet of Clopidogrel Zentiva per day to be taken orally with or without food, and at the same time each day."
+        },
+        {
+          "text": "You can take your tablet with or without food.",
+          "evidence": "Clopidogrel Zentiva may be taken with or without food."
+        },
+        {
+          "text": "If you forget within 12 hours, take it right away.",
+          "evidence": "If you forget to take a dose of Clopidogrel Zentiva, but remember within 12 hours of your usual time, take your tablet straightaway and then take your next tablet at the usual time."
+        },
+        {
+          "text": "If forgot for over 12 hours, take the next dose as usual.",
+          "evidence": "If you forget for more than 12 hours, simply take the next single dose at the usual time."
+        },
+        {
+          "text": "Do not take a double dose to make up for a forgotten tablet.",
+          "evidence": "Do not take a double dose to make up for a forgotten tablet."
+        }
+      ],
+      "see_doctor_now": [
+        {
+          "text": "Contact your doctor immediately if you get fever, infection signs, or extreme tiredness.",
+          "evidence": "Contact your doctor immediately if you experience: ... fever, signs of infection or extreme tiredness."
+        },
+        {
+          "text": "Contact your doctor immediately if you notice yellowing of skin or eyes.",
+          "evidence": "Contact your doctor immediately if you experience: ... signs of liver problems such as yellowing of the skin and/or the eyes (jaundice), whether or not associated with bleeding which appears under the skin as red pinpoint dots and/or confusion"
+        },
+        {
+          "text": "Contact your doctor immediately if you get swelling in mouth or skin blisters.",
+          "evidence": "Contact your doctor immediately if you experience: ... swelling in the mouth or skin disorders such as rashes and itching, blisters of the skin."
+        },
+        {
+          "text": "Tell your doctor immediately if you get fever, skin bruising, and red dots.",
+          "evidence": "You should also tell your doctor immediately if you develop a medical condition (also known as Thrombotic Thrombocytopenic Purpura or TTP) that includes fever and bruising under the skin that may appear as red pinpoint dots, with or without unexplained extreme tiredness, confusion, yellowing of the skin or eyes (jaundice)"
+        },
+        {
+          "text": "If you take too much, contact a doctor or hospital emergency department immediately.",
+          "evidence": "If you take more Clopidogrel Zentiva than you should ... Contact your doctor or the nearest hospital emergency department because of the increased risk of bleeding."
+        }
+      ],
+      "side_effects": [
+        {
+          "text": "The most common side effect is bleeding.",
+          "evidence": "The most common side effect reported with Clopidogrel Zentiva is bleeding."
+        },
+        {
+          "text": "Diarrhoea, stomach pain, indigestion, or heartburn may affect up to 1 in 10 people.",
+          "evidence": "Common side effects (may affect up to 1 in 10 people): ... Diarrhoea, abdominal pain, indigestion or heartburn."
+        },
+        {
+          "text": "Headache, nausea, vomiting, gas, or dizziness may affect up to 1 in 100 people.",
+          "evidence": "Uncommon side effects (may affect up to 1 in 100 people): ... Headache, stomach ulcer, vomiting, nausea, constipation, excessive gas in stomach or intestines, rashes, itching, dizziness, sensation of tingling and numbness."
+        }
+      ],
+      "storage": [
+        {
+          "text": "Keep this medicine out of the sight and reach of children.",
+          "evidence": "Keep this medicine out of the sight and reach of children."
+        },
+        {
+          "text": "If supplied in PVC/PVDC/aluminium blisters, store below 30°C.",
+          "evidence": "If Clopidogrel Zentiva is supplied in PVC/PVDC/aluminium blisters, store below 30°C."
+        },
+        {
+          "text": "Do not use this medicine after the expiry date on the carton.",
+          "evidence": "Do not use this medicine after the expiry date which is stated on the carton and on the blister, after EXP."
+        },
+        {
+          "text": "Do not use this medicine if you notice any visible sign of deterioration.",
+          "evidence": "Do not use this medicine if you notice any visible sign of deterioration."
+        }
+      ]
+    },
+    "pharmacist_questions": [
+      "How long will I need to take this medicine?",
+      "Can I safely take my usual painkillers or aspirin with this medicine?",
+      "What should I do if I get a minor cut or nosebleed that keeps bleeding?",
+      "Is this medicine safe for me if I have liver or kidney problems?",
+      "How should I throw away tablets I no longer use?"
+    ],
+    "verification": {
+      "unsupported": [],
+      "confidence": "high"
+    }
+  },
+  "detay": {
+    "dil": "en",
+    "kirpildi": false,
+    "cikti_dili": "en",
+    "uyari_sayisi": 16,
+    "belirsiz_sayisi": 6,
+    "soru_adayi_sayisi": 5,
+    "taslak_madde": 18,
+    "kod_elenen": 0,
+    "sayi_elenen": 0,
+    "llm_ilk_ret": 0,
+    "duzeltilen": 0,
+    "llm_elenen": 0,
+    "kriter_ret": {
+      "k1_no_added_info": 0,
+      "k2_same_meaning": 0,
+      "k3_condition_kept": 0,
+      "k4_same_numbers": 0
+    },
+    "reddedilenler": [],
+    "dogrulayici_calisti": true
+  },
+  "sure_sn": 23.133074283599854
+}

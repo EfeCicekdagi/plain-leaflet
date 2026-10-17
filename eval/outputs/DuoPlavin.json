@@ -1,0 +1,127 @@
+{
+  "sonuc": {
+    "drug_name": "DuoPlavin 75 mg/75 mg or 75 mg/100 mg film-coated tablets",
+    "cards": {
+      "what_for": [
+        {
+          "text": "It helps prevent blood clots forming in hardened arteries in adults.",
+          "evidence": "DuoPlavin is taken by adults to prevent blood clots forming in hardened arteries which can lead to atherothrombotic events (such as stroke, heart attack, or death)."
+        },
+        {
+          "text": "It is used after severe chest pain or a heart attack.",
+          "evidence": "You have been prescribed DuoPlavin in place of the two separate medicines, clopidogrel and ASA, to help prevent blood clots because you have experienced a severe type of chest pain known as ‘unstable angina’ or heart attack (myocardial infarction)."
+        }
+      ],
+      "how_to_use": [
+        {
+          "text": "Take one tablet per day by mouth with a glass of water.",
+          "evidence": "The recommended dose is one tablet of DuoPlavin per day to be taken orally with a glass of water, with or without food."
+        },
+        {
+          "text": "You can take your tablet with or without food.",
+          "evidence": "The recommended dose is one tablet of DuoPlavin per day to be taken orally with a glass of water, with or without food."
+        },
+        {
+          "text": "Take your medicine at the same time each day.",
+          "evidence": "You should take your medicine at the same time each day."
+        },
+        {
+          "text": "If forgotten within 12 hours, take a tablet straightaway.",
+          "evidence": "If you forget to take a dose of DuoPlavin, but remember within 12 hours of your usual time, take your tablet straightaway and then take your next tablet at the usual time."
+        },
+        {
+          "text": "If forgotten over 12 hours, just take the next dose as usual.",
+          "evidence": "If you forget for more than 12 hours, simply take the next single dose at the usual time. Do not take a double dose to make up for a forgotten tablet."
+        }
+      ],
+      "see_doctor_now": [
+        {
+          "text": "Contact your doctor straightaway if you are concerned by your bleeding.",
+          "evidence": "However, if you are concerned by your bleeding, you should contact your doctor straightaway (see section 4 ‘Possible side effects’)."
+        },
+        {
+          "text": "Tell your doctor immediately if you get yellow skin or eyes.",
+          "evidence": "signs of liver problems such as yellowing of the skin and/or the eyes (jaundice), whether or not associated with bleeding which appears under the skin as red pinpoint dots, and/or confusion (see section 2 ‘Warnings and precautions’)."
+        },
+        {
+          "text": "Tell your doctor immediately if you have fever, infection, or extreme tiredness.",
+          "evidence": "Contact your doctor immediately if you experience: ... fever, signs of infection or extreme tiredness."
+        },
+        {
+          "text": "Tell your doctor immediately if you have fever and skin pinpoint dots.",
+          "evidence": "You should also tell your doctor immediately if you develop a medical condition known as Thrombotic Thrombocytopenic Purpura or TTP that includes fever and bruising under the skin that may appear as red pinpoint dots"
+        },
+        {
+          "text": "Tell your doctor immediately if you get flu-like symptoms and a rash.",
+          "evidence": "You should tell your doctor immediately if you develop symptoms or signs of Drug Reaction with Eosinophilia and Systemic Symptoms (DRESS) which may include flu-like symptoms and a rash with fever"
+        }
+      ],
+      "side_effects": [
+        {
+          "text": "The most common side effect is bleeding.",
+          "evidence": "The most common side effect which has been seen with DuoPlavin is bleeding."
+        },
+        {
+          "text": "Common side effects include diarrhoea, abdominal pain, indigestion, or heartburn.",
+          "evidence": "Common side effects (may affect up to 1 in 10 people): ... Diarrhoea, abdominal pain, indigestion or heartburn."
+        },
+        {
+          "text": "Uncommon side effects include headache, stomach ulcer, vomiting, nausea, and dizziness.",
+          "evidence": "Uncommon side effects (may affect up to 1 in 100 people): ... Headache, stomach ulcer, vomiting, nausea, constipation, excessive gas in stomach or intestines, rashes, itching, dizziness, sensation of tingling and numbness."
+        }
+      ],
+      "storage": [
+        {
+          "text": "Keep this medicine out of the sight and reach of children.",
+          "evidence": "Keep this medicine out of the sight and reach of children."
+        },
+        {
+          "text": "Store below 25°C.",
+          "evidence": "Store below 25°C."
+        },
+        {
+          "text": "Do not use after the expiry date on the carton.",
+          "evidence": "Do not use this medicine after the expiry date which is stated on the carton and on the blister, after EXP."
+        },
+        {
+          "text": "Do not use if you notice visible signs of deterioration.",
+          "evidence": "Do not use this medicine if you notice any visible sign of deterioration."
+        }
+      ]
+    },
+    "pharmacist_questions": [
+      "How long do I need to keep taking this medicine?",
+      "Can I take pain relievers or other medicines with this?",
+      "What should I do if a minor cut does not stop bleeding?",
+      "Is it safe to take this medicine if I drink alcohol?",
+      "What should I do if I forget a tablet for over 12 hours?"
+    ],
+    "verification": {
+      "unsupported": [],
+      "confidence": "high"
+    }
+  },
+  "detay": {
+    "dil": "en",
+    "kirpildi": false,
+    "cikti_dili": "en",
+    "uyari_sayisi": 14,
+    "belirsiz_sayisi": 4,
+    "soru_adayi_sayisi": 5,
+    "taslak_madde": 19,
+    "kod_elenen": 0,
+    "sayi_elenen": 0,
+    "llm_ilk_ret": 0,
+    "duzeltilen": 0,
+    "llm_elenen": 0,
+    "kriter_ret": {
+      "k1_no_added_info": 0,
+      "k2_same_meaning": 0,
+      "k3_condition_kept": 0,
+      "k4_same_numbers": 0
+    },
+    "reddedilenler": [],
+    "dogrulayici_calisti": true
+  },
+  "sure_sn": 16.51598286628723
+}

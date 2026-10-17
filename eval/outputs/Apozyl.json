@@ -1,0 +1,132 @@
+{
+  "sonuc": {
+    "drug_name": "APOZYL 5 mg and 10 mg orodispersible tablets",
+    "cards": {
+      "what_for": [
+        {
+          "text": "It treats dementia symptoms in mild and moderately severe Alzheimer’s disease.",
+          "evidence": "It is used to treat the symptoms of dementia in people diagnosed as having mild and moderately severe Alzheimer’s disease."
+        },
+        {
+          "text": "This medicine is for adult patients only.",
+          "evidence": "APOZYL is for use in adult patients only."
+        }
+      ],
+      "how_to_use": [
+        {
+          "text": "The recommended starting dose is 5 mg every night before bed.",
+          "evidence": "Initially, the recommended dose is 5 mg every night before you go to bed."
+        },
+        {
+          "text": "Place the tablet on your tongue to disintegrate before swallowing.",
+          "evidence": "The tablet should be placed on your tongue and allowed to disintegrate before swallowing, with or without water, according to your preference."
+        },
+        {
+          "text": "You can take your tablet with or without food.",
+          "evidence": "Food will not influence the effect of APOZYL."
+        },
+        {
+          "text": "If you forget a dose, take the next dose at the usual time.",
+          "evidence": "If you forget to take your medicine, take the next dose at the usual time. Do not take a double dose to make up for a forgotten tablet."
+        },
+        {
+          "text": "If you miss tablets for over a week, call your doctor first.",
+          "evidence": "If you forget to take your medicine for more than one week, call your doctor before taking any more medicine."
+        }
+      ],
+      "see_doctor_now": [
+        {
+          "text": "Tell your doctor immediately if you get yellow skin or dark urine.",
+          "evidence": "You must tell your doctor immediately if you notice these serious side effects mentioned ... yellowing of the skin and eyes, and dark coloured urine"
+        },
+        {
+          "text": "Tell your doctor immediately if you pass black stools or visible blood.",
+          "evidence": "You must tell your doctor immediately if you notice these serious side effects mentioned ... bleeding in the stomach or intestines. This may cause you to pass black tar like stools or visible blood from the rectum"
+        },
+        {
+          "text": "Tell your doctor immediately if you experience seizures or fits.",
+          "evidence": "You must tell your doctor immediately if you notice these serious side effects mentioned ... seizures (fits) or convulsions"
+        },
+        {
+          "text": "Tell your doctor immediately if you have fever with muscle stiffness and sweating.",
+          "evidence": "You must tell your doctor immediately if you notice these serious side effects mentioned ... fever with muscle stiffness, sweating or a lowered level of consciousness"
+        }
+      ],
+      "side_effects": [
+        {
+          "text": "Diarrhoea and headache are very common and may affect over 1 in 10 people.",
+          "evidence": "Very common side effects (may affect more than 1 in 10 people): ... diarrhoea ... headache"
+        },
+        {
+          "text": "Muscle cramps, tiredness, dizziness and sleep problems may affect up to 1 in 10 people.",
+          "evidence": "Common side effects (may affect up to 1 in 10 people): ... muscle cramp ... tiredness ... difficulty in sleeping (insomnia) ... dizziness"
+        },
+        {
+          "text": "Slow heart beat may affect up to 1 in 100 people.",
+          "evidence": "Uncommon side effects (may affect up to 1 in 100 people): ... slow heart beat"
+        },
+        {
+          "text": "Do not drive if you feel tired, dizzy, or get muscle cramps.",
+          "evidence": "your medicine can cause tiredness, dizziness and muscle cramp. If you experience any of these effects you must not drive or operate machinery."
+        }
+      ],
+      "storage": [
+        {
+          "text": "Keep this medicine out of the sight and reach of children.",
+          "evidence": "Keep this medicine out of the sight and reach of children."
+        },
+        {
+          "text": "Do not use this medicine after the expiry date on the carton.",
+          "evidence": "Do not use this medicine after the expiry date which is stated on the outer carton and blister (EXP)."
+        },
+        {
+          "text": "This medicine does not require any special storage conditions.",
+          "evidence": "This medicine does not require any special storage conditions."
+        }
+      ]
+    },
+    "pharmacist_questions": [
+      "If I have trouble sleeping or nightmares, should I take this tablet in the morning?",
+      "Are any of my current painkillers or arthritis medicines unsafe to take with APOZYL?",
+      "What signs of liver or stomach problems should my caregiver look out for?",
+      "Is my liver or kidney function safe for taking APOZYL?",
+      "What should I do if I forget my tablets for over a week?"
+    ],
+    "verification": {
+      "unsupported": [
+        "Tell your doctor immediately if you get a fast, irregular heartbeat and faint."
+      ],
+      "confidence": "medium"
+    }
+  },
+  "detay": {
+    "dil": "en",
+    "kirpildi": false,
+    "cikti_dili": "en",
+    "uyari_sayisi": 15,
+    "belirsiz_sayisi": 4,
+    "soru_adayi_sayisi": 5,
+    "taslak_madde": 19,
+    "kod_elenen": 1,
+    "sayi_elenen": 0,
+    "llm_ilk_ret": 0,
+    "duzeltilen": 0,
+    "llm_elenen": 0,
+    "kriter_ret": {
+      "k1_no_added_info": 0,
+      "k2_same_meaning": 0,
+      "k3_condition_kept": 0,
+      "k4_same_numbers": 0
+    },
+    "reddedilenler": [
+      {
+        "text": "Tell your doctor immediately if you get a fast, irregular heartbeat and faint.",
+        "evidence": "You must tell your doctor immediately if you notice these serious side effects mentioned ... fast, irregular heart beat and fainting",
+        "kontrol": "kod",
+        "reason": "quote not found in leaflet"
+      }
+    ],
+    "dogrulayici_calisti": true
+  },
+  "sure_sn": 64.03840398788452
+}

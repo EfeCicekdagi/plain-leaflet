@@ -1,0 +1,111 @@
+{
+  "sonuc": {
+    "drug_name": "Onpattro 2 mg/mL concentrate for solution for infusion",
+    "cards": {
+      "what_for": [
+        {
+          "text": "Onpattro treats an inherited illness called hATTR amyloidosis.",
+          "evidence": "Onpattro is a medicine that treats an illness which runs in families called hereditary transthyretin-mediated amyloidosis (hATTR amyloidosis)."
+        },
+        {
+          "text": "Onpattro lowers the amount of TTR protein made by your liver.",
+          "evidence": "Onpattro works by lowering the amount of TTR protein that the liver makes."
+        }
+      ],
+      "how_to_use": [
+        {
+          "text": "It is given as a drip into a vein every 3 weeks.",
+          "evidence": "The usual dose of Onpattro is 300 micrograms per kilogram (kg) of body weight given once every 3 weeks."
+        },
+        {
+          "text": "A doctor or nurse will give you the infusion over 80 minutes.",
+          "evidence": "Onpattro will be given to you by a doctor or nurse. ... It is given as a drip into a vein (‘intravenous infusion’) usually over about 80 minutes."
+        },
+        {
+          "text": "You will get other medicines 60 minutes before to prevent reactions.",
+          "evidence": "About 60 minutes before each infusion of Onpattro, you will be given medicines that help to lower the risk of infusion-related reactions"
+        },
+        {
+          "text": "Take a daily vitamin A supplement during treatment with Onpattro.",
+          "evidence": "Your doctor will ask you to take a daily vitamin A supplement during treatment with Onpattro."
+        },
+        {
+          "text": "If you miss an appointment, ask your doctor or nurse when to rebook.",
+          "evidence": "If you miss an appointment to have Onpattro, ask your doctor or nurse when to book your next treatment."
+        }
+      ],
+      "see_doctor_now": [
+        {
+          "text": "Tell your doctor straight away if you get signs of an infusion reaction.",
+          "evidence": "Tell your doctor or nurse straight away if you get any signs of an infusion-related reaction."
+        },
+        {
+          "text": "Talk to your doctor if you have eye or vision problems while using Onpattro.",
+          "evidence": "If you have problems with your vision or any other eye problems whilst using Onpattro, you should talk to your doctor."
+        }
+      ],
+      "side_effects": [
+        {
+          "text": "Infusion reactions like stomach pain, headache, chills, or dizziness are very common.",
+          "evidence": "Infusion-related reactions are very common (may affect more than 1 in 10 people). ... Stomach pain ... Feeling sick (nausea) ... Body aches or pain, including pain in the back, neck, or joints ... Headache ... Feeling tired (fatigue) ... Chills ... Dizziness"
+        },
+        {
+          "text": "Swelling of your arms or legs.",
+          "evidence": "Swelling of the arms or legs (peripheral oedema)"
+        },
+        {
+          "text": "Joint pain, muscle spasms, indigestion, and shortness of breath.",
+          "evidence": "Pain in the joints (arthralgia) ... Muscle spasms ... Indigestion (dyspepsia) ... Shortness of breath (dyspnoea)"
+        }
+      ],
+      "storage": [
+        {
+          "text": "Store in a refrigerator between 2°C and 8°C. Do not freeze.",
+          "evidence": "Store in a refrigerator (2°C to 8°C). Do not freeze."
+        },
+        {
+          "text": "If refrigeration is unavailable, Onpattro can be kept up to 25°C for 14 days.",
+          "evidence": "If refrigeration is not available, Onpattro can be stored at room temperature (up to 25°C) for up to 14 days."
+        },
+        {
+          "text": "Keep this medicine out of the sight and reach of children.",
+          "evidence": "Keep this medicine out of the sight and reach of children."
+        }
+      ]
+    },
+    "pharmacist_questions": [
+      "How long will I need to receive this treatment?",
+      "Which daily vitamin A supplement should I take during treatment?",
+      "What should I do if I get problems with my vision?",
+      "Is it safe for me to drive after receiving an infusion?",
+      "What should I do if I miss an appointment for my infusion?"
+    ],
+    "verification": {
+      "unsupported": [],
+      "confidence": "high"
+    }
+  },
+  "detay": {
+    "dil": "en",
+    "kirpildi": false,
+    "cikti_dili": "en",
+    "uyari_sayisi": 7,
+    "belirsiz_sayisi": 5,
+    "soru_adayi_sayisi": 5,
+    "taslak_madde": 15,
+    "kod_elenen": 0,
+    "sayi_elenen": 0,
+    "llm_ilk_ret": 7,
+    "duzeltilen": 7,
+    "llm_elenen": 0,
+    "kriter_ret": {
+      "k1_no_added_info": 4,
+      "k2_same_meaning": 0,
+      "k3_condition_kept": 3,
+      "k4_same_numbers": 0
+    },
+    "reddedilenler": [],
+    "dogrulayici_calisti": true
+  },
+  "sure_sn": 56.8003294467926
+}

@@ -1,0 +1,99 @@
+{
+  "sonuc": {
+    "drug_name": "Ibuprofen Gen.Orph 5 mg/mL solution for injection",
+    "cards": {
+      "what_for": [
+        {
+          "text": "It helps close an open blood vessel near the baby's heart.",
+          "evidence": "Ibuprofen Gen.Orph, when given to your baby, can help to close the ductus arteriosus."
+        }
+      ],
+      "how_to_use": [
+        {
+          "text": "Given only in intensive care by healthcare professionals.",
+          "evidence": "Ibuprofen Gen.Orph will only be given to your baby in a special neonatal intensive care unit by qualified health care professionals."
+        },
+        {
+          "text": "A treatment course is three injections given 24 hours apart.",
+          "evidence": "A course of therapy is defined as three intravenous injections of Ibuprofen Gen.Orph given at 24 hour intervals."
+        },
+        {
+          "text": "The medicine is infused into a vein over 15 minutes.",
+          "evidence": "This calculated amount will be given by infusion in a vein over a period of 15 minutes."
+        }
+      ],
+      "see_doctor_now": [
+        {
+          "text": "Stop treatment at once if a skin rash or blisters appear.",
+          "evidence": "Your doctor should discontinue Ibuprofen Gen.Orph immediately, if any of the following side effects occur: skin rash, lesions of the mucous membranes, blisters or other signs of allergy"
+        },
+        {
+          "text": "Stop treatment immediately if rash, fever, or swollen lymph nodes occur.",
+          "evidence": "Your doctor should discontinue Ibuprofen Gen.Orph immediately, if any of the following side effects occur: skin rash, fever, swelling of lymph nodes and an increase of eosinophils"
+        }
+      ],
+      "side_effects": [
+        {
+          "text": "Very common side effects include low blood platelets and reduced white blood cells.",
+          "evidence": "Very common (may affect more than 1 in 10 people) ... Decrease in the number of platelets in the blood (thrombocytopenia), ... Decrease in white blood cells called neutrophils (neutropenia)"
+        },
+        {
+          "text": "Common side effects include bleeding inside the skull or lungs.",
+          "evidence": "Common (may affect up to 1 in 10 people) ... Bleeding inside the skull (intraventricular haemorrhage) and brain injury (periventricular leukomalacia), ... Bleeding in the lung"
+        },
+        {
+          "text": "Common side effects include reduced urine volume and fluid retention.",
+          "evidence": "Common (may affect up to 1 in 10 people) ... Reduced volume of urine passed, blood in the urine, fluid retention."
+        }
+      ],
+      "storage": [
+        {
+          "text": "Keep out of the sight and reach of children.",
+          "evidence": "Keep this medicine out of the sight and reach of children."
+        },
+        {
+          "text": "Administer immediately after opening.",
+          "evidence": "After opening, Ibuprofen Gen.Orph should be administered immediately."
+        },
+        {
+          "text": "Do not use if the solution shows visible deterioration.",
+          "evidence": "Do not use this medicine if you notice visible signs of deterioration of the solution."
+        }
+      ]
+    },
+    "pharmacist_questions": [
+      "How will the dose be adjusted for my baby's weight?",
+      "Can this medicine interact with other treatments my baby is receiving?",
+      "What signs of severe skin reactions should I watch out for?",
+      "Is this medicine effective if my baby was born very prematurely?",
+      "What happens if a dose needs to be delayed due to low urine output?"
+    ],
+    "verification": {
+      "unsupported": [],
+      "confidence": "high"
+    }
+  },
+  "detay": {
+    "dil": "en",
+    "kirpildi": false,
+    "cikti_dili": "en",
+    "uyari_sayisi": 9,
+    "belirsiz_sayisi": 3,
+    "soru_adayi_sayisi": 5,
+    "taslak_madde": 12,
+    "kod_elenen": 0,
+    "sayi_elenen": 0,
+    "llm_ilk_ret": 0,
+    "duzeltilen": 0,
+    "llm_elenen": 0,
+    "kriter_ret": {
+      "k1_no_added_info": 0,
+      "k2_same_meaning": 0,
+      "k3_condition_kept": 0,
+      "k4_same_numbers": 0
+    },
+    "reddedilenler": [],
+    "dogrulayici_calisti": true
+  },
+  "sure_sn": 53.77662920951843
+}

@@ -1,0 +1,111 @@
+{
+  "sonuc": {
+    "drug_name": "Rasilez 150 mg film-coated tablets / Rasilez 300 mg film-coated tablets",
+    "cards": {
+      "what_for": [
+        {
+          "text": "This medicine helps to lower high blood pressure in adult patients.",
+          "evidence": "This helps to lower high blood pressure in adult patients."
+        }
+      ],
+      "how_to_use": [
+        {
+          "text": "Swallow the tablet whole with some water.",
+          "evidence": "Swallow the tablet whole with some water."
+        },
+        {
+          "text": "Take once a day, always with or always without food, at the same time.",
+          "evidence": "You should take this medicine once a day, always with or always without food, preferably at the same time each day."
+        },
+        {
+          "text": "Avoid taking this medicine with fruit juice or drinks containing plant extracts.",
+          "evidence": "You should avoid taking this medicine together with fruit juice and/or drinks containing plant extracts (including herbal teas)."
+        },
+        {
+          "text": "If you forget a dose, take it as soon as you remember.",
+          "evidence": "If you forget to take a dose of this medicine, take it as soon as you remember and then take the next dose at its usual time."
+        },
+        {
+          "text": "Do not take a double dose to make up for a forgotten dose.",
+          "evidence": "Do not take a double dose to make up for a forgotten dose."
+        }
+      ],
+      "see_doctor_now": [
+        {
+          "text": "If you get swelling of the face, breathing difficulty, or rash, tell your doctor straight away.",
+          "evidence": "Some side effects can be serious (frequency not known): ... If any of the following occur, tell your doctor straight away: ... Severe allergic reaction with symptoms such as rash, itching, swelling of face or lips or tongue, difficulty breathing, dizziness."
+        },
+        {
+          "text": "If you experience angioedema or swelling of face, hands, or feet, stop taking it and contact your doctor.",
+          "evidence": "if you have already experienced angioedema (difficulties in breathing or swallowing, or swelling of the face, hands and feet, eyes, lips and/or tongue). If this happens, stop taking this medicine and contact your doctor."
+        },
+        {
+          "text": "If you have severe and persistent diarrhoea, you should stop taking Rasilez.",
+          "evidence": "If you have severe and persistent diarrhoea you should stop taking Rasilez."
+        },
+        {
+          "text": "If you accidentally take too many tablets, consult a doctor immediately.",
+          "evidence": "If you have accidentally taken too many tablets of this medicine, consult a doctor immediately."
+        }
+      ],
+      "side_effects": [
+        {
+          "text": "Common side effects include diarrhoea, joint pain, high potassium levels, and dizziness.",
+          "evidence": "Common (may affect up to 1 in 10 people): Diarrhoea, joint pain (arthralgia), high level of potassium in the blood, dizziness."
+        },
+        {
+          "text": "Uncommon side effects include skin rash, kidney problems, low blood pressure, and swelling.",
+          "evidence": "Uncommon (may affect up to 1 in 100 people): Skin rash ... kidney problems ... swelling of hands, ankles or feet ... low blood pressure"
+        }
+      ],
+      "storage": [
+        {
+          "text": "Keep this medicine out of the sight and reach of children.",
+          "evidence": "Keep this medicine out of the sight and reach of children."
+        },
+        {
+          "text": "Do not store above 25°C.",
+          "evidence": "Do not store above 25°C."
+        },
+        {
+          "text": "Store in the original package in order to protect from moisture.",
+          "evidence": "Store in the original package in order to protect from moisture."
+        }
+      ]
+    },
+    "pharmacist_questions": [
+      "Is the 150 mg starting dose sufficient for me, or will I need a higher dose later?",
+      "Can I take this medicine with my current painkillers or blood pressure pills?",
+      "How will we monitor my blood potassium and kidney function during treatment?",
+      "Is the 150 mg starting dose recommended for my age group?",
+      "What should I do if I miss a dose and my next dose is due soon?"
+    ],
+    "verification": {
+      "unsupported": [],
+      "confidence": "high"
+    }
+  },
+  "detay": {
+    "dil": "en",
+    "kirpildi": false,
+    "cikti_dili": "en",
+    "uyari_sayisi": 11,
+    "belirsiz_sayisi": 4,
+    "soru_adayi_sayisi": 5,
+    "taslak_madde": 15,
+    "kod_elenen": 0,
+    "sayi_elenen": 0,
+    "llm_ilk_ret": 0,
+    "duzeltilen": 0,
+    "llm_elenen": 0,
+    "kriter_ret": {
+      "k1_no_added_info": 0,
+      "k2_same_meaning": 0,
+      "k3_condition_kept": 0,
+      "k4_same_numbers": 0
+    },
+    "reddedilenler": [],
+    "dogrulayici_calisti": true
+  },
+  "sure_sn": 38.07973337173462
+}

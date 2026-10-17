@@ -1,0 +1,124 @@
+{
+  "sonuc": {
+    "drug_name": "PANTOZOL Control 20 mg gastro-resistant tablets",
+    "cards": {
+      "what_for": [
+        {
+          "text": "It is used for short-term treatment of reflux symptoms in adults.",
+          "evidence": "PANTOZOL Control is used for the short-term treatment of reflux symptoms (for example heartburn, acid regurgitation) in adults."
+        }
+      ],
+      "how_to_use": [
+        {
+          "text": "Take one tablet a day.",
+          "evidence": "The recommended dose is one tablet a day."
+        },
+        {
+          "text": "Take the tablet before a meal, at the same time every day.",
+          "evidence": "Take the tablet before a meal, at the same time every day."
+        },
+        {
+          "text": "Swallow the tablet whole with water. Do not chew or break it.",
+          "evidence": "You should swallow the tablet whole with some water. Do not chew or break the tablet."
+        },
+        {
+          "text": "If you forget a dose, do not take a double dose. Take the next dose tomorrow.",
+          "evidence": "Do not take a double dose to make up for the forgotten dose. Take your next, normal dose, the next day, at your usual time."
+        },
+        {
+          "text": "See your doctor if you do not feel better after 2 weeks.",
+          "evidence": "You must talk to a doctor if you do not feel better or if you feel worse after 2 weeks."
+        }
+      ],
+      "see_doctor_now": [
+        {
+          "text": "Stop taking and seek medical help at once if your face, lips or throat swell.",
+          "evidence": "Tell your doctor immediately or contact the casualty department at your nearest hospital, if you get any of the following serious side effects. Stop taking this medicine straight away ... typical symptoms are: swelling of the face, lips, mouth, tongue and/or throat"
+        },
+        {
+          "text": "Tell your doctor immediately if you vomit blood or dark coffee-ground material.",
+          "evidence": "Tell your doctor immediately, before or after taking this medicine, if you notice any of the following symptoms ... vomiting blood; this may appear as dark coffee grounds in your vomit"
+        },
+        {
+          "text": "Tell your doctor immediately if you notice blood in your stools or black stools.",
+          "evidence": "Tell your doctor immediately, before or after taking this medicine, if you notice any of the following symptoms ... you notice blood in your stools; which may be black or tarry in appearance"
+        },
+        {
+          "text": "Tell your doctor immediately if you have chest pain or pain when swallowing.",
+          "evidence": "Tell your doctor immediately, before or after taking this medicine, if you notice any of the following symptoms ... difficulty in swallowing or pain when swallowing ... chest pain"
+        }
+      ],
+      "side_effects": [
+        {
+          "text": "Common side effects include benign polyps in the stomach.",
+          "evidence": "Common side effects (may affect up to 1 in 10 people) ... benign polyps in the stomach."
+        },
+        {
+          "text": "Uncommon side effects include headache, dizziness, diarrhoea, nausea, vomiting, constipation, and dry mouth.",
+          "evidence": "Uncommon side effects (may affect up to 1 in 100 people) ... headache; dizziness; diarrhoea; feeling sick, vomiting; bloating and flatulence (wind); constipation; dry mouth"
+        },
+        {
+          "text": "Uncommon side effects also include skin rash, itching, weakness, sleep disorders, and bone fractures.",
+          "evidence": "Uncommon side effects (may affect up to 1 in 100 people) ... skin rash or hives; itching; feeling weak, exhausted or generally unwell; sleep disorders; increase in liver enzymes in a blood test; fracture in the hip, wrist or spine."
+        },
+        {
+          "text": "Do not drive if you get dizziness or disturbed vision.",
+          "evidence": "If you experience side effects like dizziness or disturbed vision, you should not drive or use machines."
+        }
+      ],
+      "storage": [
+        {
+          "text": "Keep this medicine out of the sight and reach of children.",
+          "evidence": "Keep this medicine out of the sight and reach of children."
+        },
+        {
+          "text": "Store in the original package to protect from moisture.",
+          "evidence": "Store in the original package in order to protect from moisture."
+        }
+      ]
+    },
+    "pharmacist_questions": [
+      "How long should I wait to see a doctor if my symptoms do not go away?",
+      "Can I take this medicine alongside my other daily prescription drugs?",
+      "I am over 55 years old. Is this medicine safe for me to take without a prescription?",
+      "What signs should I watch for if I need to use this for a few weeks?",
+      "What should I do if I forget to take my daily tablet?"
+    ],
+    "verification": {
+      "unsupported": [
+        "Stop taking and seek immediate medical care if you get blistering or peeling skin."
+      ],
+      "confidence": "medium"
+    }
+  },
+  "detay": {
+    "dil": "en",
+    "kirpildi": false,
+    "cikti_dili": "en",
+    "uyari_sayisi": 18,
+    "belirsiz_sayisi": 6,
+    "soru_adayi_sayisi": 5,
+    "taslak_madde": 17,
+    "kod_elenen": 1,
+    "sayi_elenen": 0,
+    "llm_ilk_ret": 0,
+    "duzeltilen": 0,
+    "llm_elenen": 0,
+    "kriter_ret": {
+      "k1_no_added_info": 0,
+      "k2_same_meaning": 0,
+      "k3_condition_kept": 0,
+      "k4_same_numbers": 0
+    },
+    "reddedilenler": [
+      {
+        "text": "Stop taking and seek immediate medical care if you get blistering or peeling skin.",
+        "evidence": "Stop using pantoprazole and seek medical attention immediately if you notice any of the symptoms related to these serious skin reactions described in section 4. ... rash with swelling, blistering or peeling of the skin",
+        "kontrol": "kod",
+        "reason": "quote not found in leaflet"
+      }
+    ],
+    "dogrulayici_calisti": true
+  },
+  "sure_sn": 26.126572847366333
+}

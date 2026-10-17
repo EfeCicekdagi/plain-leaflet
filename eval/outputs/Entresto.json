@@ -1,0 +1,107 @@
+{
+  "sonuc": {
+    "drug_name": "Entresto 24 mg/26 mg, 49 mg/51 mg, 97 mg/103 mg film-coated tablets",
+    "cards": {
+      "what_for": [
+        {
+          "text": "Entresto treats a type of long-term heart failure in adults.",
+          "evidence": "Entresto is used to treat a type of long-term heart failure in adults, children and adolescents (one year and older)."
+        }
+      ],
+      "how_to_use": [
+        {
+          "text": "You will usually take one tablet in the morning and one in the evening.",
+          "evidence": "You will usually start by taking a 24 mg/26 mg or 49 mg/51 mg tablet twice a day (one tablet in the morning and one tablet in the evening)."
+        },
+        {
+          "text": "Swallow the tablets with a glass of water.",
+          "evidence": "Swallow the tablets with a glass of water."
+        },
+        {
+          "text": "You can take Entresto with or without food.",
+          "evidence": "You can take Entresto with or without food."
+        },
+        {
+          "text": "If you forget a dose, take the next one at the scheduled time.",
+          "evidence": "if you forget to take a dose, you should simply take the next one at the scheduled time."
+        },
+        {
+          "text": "Do not take a double dose to make up for a forgotten dose.",
+          "evidence": "Do not take a double dose to make up for a forgotten dose."
+        }
+      ],
+      "see_doctor_now": [
+        {
+          "text": "Stop taking Entresto and seek immediate medical attention if your face or throat swells.",
+          "evidence": "Stop taking Entresto and seek immediate medical attention if you notice any swelling of the face, lips, tongue and/or throat, which may cause difficulties in breathing or swallowing."
+        },
+        {
+          "text": "If you accidentally take too many tablets, contact your doctor immediately.",
+          "evidence": "If you have accidentally taken too many Entresto tablets, or if someone else has taken your tablets, contact your doctor immediately."
+        },
+        {
+          "text": "If you feel very dizzy or faint, lie down and tell your doctor quickly.",
+          "evidence": "If you experience severe dizziness and/or fainting, tell your doctor as quickly as possible and lie down."
+        }
+      ],
+      "side_effects": [
+        {
+          "text": "Very common side effects include low blood pressure, high potassium levels, and reduced kidney function.",
+          "evidence": "Very common (may affect more than 1 in 10 people) ... low blood pressure, which can cause symptoms of dizziness and light-headedness (hypotension) ... high level of potassium in the blood, shown in a blood test (hyperkalaemia) ... decreased kidney function (renal impairment)"
+        },
+        {
+          "text": "Common side effects include cough, dizziness, diarrhoea, tiredness, headache, and feeling sick.",
+          "evidence": "Common (may affect up to 1 in 10 people) ... cough ... dizziness ... diarrhoea ... tiredness (fatigue) ... headache ... feeling sick (nausea)"
+        }
+      ],
+      "storage": [
+        {
+          "text": "Keep this medicine out of the sight and reach of children.",
+          "evidence": "Keep this medicine out of the sight and reach of children."
+        },
+        {
+          "text": "This medicine does not require any special temperature storage conditions.",
+          "evidence": "This medicine does not require any special temperature storage conditions."
+        },
+        {
+          "text": "Store in the original package in order to protect from moisture.",
+          "evidence": "Store in the original package in order to protect from moisture."
+        }
+      ]
+    },
+    "pharmacist_questions": [
+      "How will my dose be increased over time?",
+      "Can I take my usual painkillers or pain relievers with this medicine?",
+      "Is it safe to use potassium salt substitutes while taking this?",
+      "How often do I need blood tests to check my potassium and kidney function?",
+      "How does my age or kidney function affect my dose?"
+    ],
+    "verification": {
+      "unsupported": [],
+      "confidence": "high"
+    }
+  },
+  "detay": {
+    "dil": "en",
+    "kirpildi": false,
+    "cikti_dili": "en",
+    "uyari_sayisi": 9,
+    "belirsiz_sayisi": 4,
+    "soru_adayi_sayisi": 5,
+    "taslak_madde": 14,
+    "kod_elenen": 0,
+    "sayi_elenen": 0,
+    "llm_ilk_ret": 1,
+    "duzeltilen": 1,
+    "llm_elenen": 0,
+    "kriter_ret": {
+      "k1_no_added_info": 0,
+      "k2_same_meaning": 0,
+      "k3_condition_kept": 1,
+      "k4_same_numbers": 0
+    },
+    "reddedilenler": [],
+    "dogrulayici_calisti": true
+  },
+  "sure_sn": 16.630685806274414
+}

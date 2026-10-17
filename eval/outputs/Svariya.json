@@ -1,0 +1,151 @@
+{
+  "sonuc": {
+    "drug_name": "Svariya 10 mg / 15 mg / 20 mg Orodispersible film",
+    "cards": {
+      "what_for": [
+        {
+          "text": "Svariya thins the blood to prevent dangerous blood clots.",
+          "evidence": "Svariya thins the blood, which prevents you from getting dangerous blood clots."
+        },
+        {
+          "text": "It treats and prevents blood clots in your legs and lungs.",
+          "evidence": "treat blood clots in the veins of your legs (deep vein thrombosis) and in the blood vessels of your lungs (pulmonary embolism), and to prevent blood clots from re-occurring in the blood vessels of your legs and/or lungs."
+        },
+        {
+          "text": "It helps prevent blood clots after hip or knee replacement surgery.",
+          "evidence": "prevent blood clots in the veins after a hip or knee replacement operation."
+        },
+        {
+          "text": "It helps prevent stroke if you have an irregular heart rhythm.",
+          "evidence": "prevent blood clots in brain (stroke) and other blood vessels in your body if you have a form of irregular heart rhythm called non-valvular atrial fibrillation."
+        }
+      ],
+      "how_to_use": [
+        {
+          "text": "Place the film on your tongue with dry fingers and let it dissolve.",
+          "evidence": "Take the orodispersible film with dry fingers out of the sachet and put it in your mouth directly on your tongue. It will disperse rapidly, so that it can be easily swallowed."
+        },
+        {
+          "text": "You can take 10 mg with or without food.",
+          "evidence": "Svariya 10 mg Orodispersible film can be taken with or without food."
+        },
+        {
+          "text": "You must take 15 mg or 20 mg films with food.",
+          "evidence": "Svariya 15 mg and 20 mg  Orodispersible films are for the oral use and are to be taken with food"
+        },
+        {
+          "text": "If you miss a dose, take it as soon as you remember.",
+          "evidence": "If you have missed a dose, take it as soon as you remember."
+        },
+        {
+          "text": "Never double your dose to make up for a forgotten film.",
+          "evidence": "Do not take a double dose to make up for a forgotten orodispersible film."
+        }
+      ],
+      "see_doctor_now": [
+        {
+          "text": "Tell your doctor straight away if you have any signs of bleeding.",
+          "evidence": "Tell your health care provider straight away if you have any signs or symptoms of bleeding"
+        },
+        {
+          "text": "Seek medical help at once if you get brain bleeding symptoms like headache.",
+          "evidence": "bleeding into the brain or inside the skull (symptoms can include headache, one-sided weakness, vomiting, seizures, decreased level of consciousness, and neck stiffness. A serious medical emergency. Seek medical attention immediately!)"
+        },
+        {
+          "text": "Tell your doctor immediately if your legs get numb or weak after anaesthesia ends.",
+          "evidence": "tell your doctor immediately if you get numbness or weakness of your legs or problems with your bowel or bladder after the end of anaesthesia, because urgent care is necessary."
+        }
+      ],
+      "side_effects": [
+        {
+          "text": "Bleeding is the most common side effect of Svariya.",
+          "evidence": "Bleeding is the most common side effect."
+        },
+        {
+          "text": "Common side effects include stomach ache, feeling sick, diarrhoea, or constipation.",
+          "evidence": "Common (may affect up to 1 in 10 people) ... stomach ache, indigestion, feeling or being sick, constipation, diarrhoea"
+        },
+        {
+          "text": "You may feel dizzy, tired, weak, or get a headache.",
+          "evidence": "Common (may affect up to 1 in 10 people) ... decreased general strength and energy (weakness, tiredness), headache, dizziness"
+        },
+        {
+          "text": "Low blood pressure may cause dizziness or fainting when standing up.",
+          "evidence": "Common (may affect up to 1 in 10 people) ... low blood pressure (symptoms may be feeling dizzy or fainting when standing up)"
+        },
+        {
+          "text": "You may develop a skin rash or itchy skin.",
+          "evidence": "Common (may affect up to 1 in 10 people) ... rash, itchy skin"
+        }
+      ],
+      "storage": [
+        {
+          "text": "Keep this medicine out of the sight and reach of children.",
+          "evidence": "Keep this medicine out of the sight and reach of children."
+        },
+        {
+          "text": "Store the medicine in its original package.",
+          "evidence": "The product should be stored in the original package"
+        },
+        {
+          "text": "This medicine requires no special temperature storage conditions.",
+          "evidence": "this medicinal product does not require any special temperature storage conditions."
+        },
+        {
+          "text": "Do not use after the expiry date shown on the carton or sachet.",
+          "evidence": "Do not use this medicine after the expiry date which is stated on the carton and on each sachet after EXP."
+        }
+      ]
+    },
+    "pharmacist_questions": [
+      "How long will I need to take this medicine for?",
+      "Should I take my dose with meals or on an empty stomach?",
+      "What should I do if I notice unusual bruising or bleeding?",
+      "Does my kidney condition mean I need a lower dose?",
+      "What should I do if I forget to take my film at the usual time?"
+    ],
+    "verification": {
+      "unsupported": [
+        "Tell your doctor immediately if face, mouth, or throat swelling occurs.",
+        "Tell your doctor immediately if you notice spreading rash or blisters."
+      ],
+      "confidence": "medium"
+    }
+  },
+  "detay": {
+    "dil": "en",
+    "kirpildi": false,
+    "cikti_dili": "en",
+    "uyari_sayisi": 14,
+    "belirsiz_sayisi": 4,
+    "soru_adayi_sayisi": 5,
+    "taslak_madde": 23,
+    "kod_elenen": 0,
+    "sayi_elenen": 0,
+    "llm_ilk_ret": 3,
+    "duzeltilen": 1,
+    "llm_elenen": 2,
+    "kriter_ret": {
+      "k1_no_added_info": 3,
+      "k2_same_meaning": 3,
+      "k3_condition_kept": 1,
+      "k4_same_numbers": 0
+    },
+    "reddedilenler": [
+      {
+        "text": "Tell your doctor immediately if face, mouth, or throat swelling occurs.",
+        "evidence": "Signs of severe allergic reactions ... swelling of the face, lips, mouth, tongue or throat; difficulty swallowing; hives and breathing difficulties; sudden drop in blood pressure.",
+        "kontrol": "llm",
+        "reason": "The evidence lists signs of severe allergic reactions (including swelling of face, mouth, or throat), but the text inserts the instruction 'Tell your doctor immediately' which is not in the quoted evidence."
+      },
+      {
+        "text": "Tell your doctor immediately if you notice spreading rash or blisters.",
+        "evidence": "Signs of severe skin reactions ... spreading intense skin rash, blisters or mucosal lesions, e.g. in the mouth or eyes",
+        "kontrol": "llm",
+        "reason": "The evidence lists signs of severe skin reactions (including spreading rash or blisters), but the text inserts the instruction 'Tell your doctor immediately' which is not in the quoted evidence."
+      }
+    ],
+    "dogrulayici_calisti": true
+  },
+  "sure_sn": 46.593498945236206
+}

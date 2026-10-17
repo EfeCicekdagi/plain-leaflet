@@ -1,0 +1,131 @@
+{
+  "sonuc": {
+    "drug_name": "Synjardy film-coated tablets",
+    "cards": {
+      "what_for": [
+        {
+          "text": "Synjardy is taken by mouth to treat type 2 diabetes in adults.",
+          "evidence": "Synjardy contains two active substances empagliflozin and metformin. Each belongs to a group of medicines called “oral anti-diabetics”. These are medicines taken by mouth to treat type 2 diabetes."
+        },
+        {
+          "text": "It lowers the amount of sugar in your blood.",
+          "evidence": "Thereby Synjardy lowers the amount of sugar in your blood."
+        },
+        {
+          "text": "This medicine can also help prevent heart disease.",
+          "evidence": "This medicine can also help prevent heart disease."
+        }
+      ],
+      "how_to_use": [
+        {
+          "text": "The recommended dose is one tablet twice a day.",
+          "evidence": "The recommended dose is one tablet twice a day."
+        },
+        {
+          "text": "Swallow the tablet whole with water.",
+          "evidence": "Swallow the tablet whole with water."
+        },
+        {
+          "text": "Take the tablets with meals to lower your chance of an upset stomach.",
+          "evidence": "Take the tablets with meals to lower your chance of an upset stomach."
+        },
+        {
+          "text": "If you miss a dose, take it as soon as you remember.",
+          "evidence": "If you miss a dose, take it as soon as you remember."
+        },
+        {
+          "text": "If it is time for your next dose, skip the missed dose. Do not double.",
+          "evidence": "If you do not remember until it is time for your next dose, skip the missed dose and go back to your regular schedule. Do not take a double dose of this medicine."
+        }
+      ],
+      "see_doctor_now": [
+        {
+          "text": "If you get symptoms of lactic acidosis, stop taking Synjardy and see a doctor immediately.",
+          "evidence": "Stop taking Synjardy and contact a doctor or the nearest hospital immediately if you experience some of the symptoms of lactic acidosis"
+        },
+        {
+          "text": "If face, lips, tongue or throat swell, contact a doctor or hospital straight away.",
+          "evidence": "Contact a doctor or the nearest hospital straight away if you have any of the following side effects: ... Severe allergic reaction ... Possible signs of severe allergic reaction may include: ... swelling of the face, lips, mouth, tongue, or throat"
+        },
+        {
+          "text": "If you get signs of diabetic ketoacidosis, stop taking Synjardy and see a doctor straight away.",
+          "evidence": "contact a doctor or the nearest hospital straight away and stop taking this medicine until further advice from your doctor. These symptoms could be a sign of “diabetic ketoacidosis”"
+        },
+        {
+          "text": "If you have pain, swelling or fever around your genitals, contact your doctor immediately.",
+          "evidence": "Talk to your doctor immediately if you develop a combination of symptoms of pain, tenderness, redness, or swelling of the genitals or the area between the genitals and the anus with fever or feeling generally unwell."
+        }
+      ],
+      "side_effects": [
+        {
+          "text": "Low blood sugar is very common if taken with insulin or a sulphonylurea.",
+          "evidence": "Low blood sugar (hypoglycaemia), seen very commonly (may affect more than 1 in 10 people) ... If you take Synjardy with another medicine that can cause low blood sugar, such as a sulfonylurea or insulin, your risk of getting low blood sugar is increased."
+        },
+        {
+          "text": "Urinary tract infections are common and can cause a burning feeling when passing urine.",
+          "evidence": "Urinary tract infection, seen commonly (may affect up to 1 in 10 people) ... The signs of urinary tract infection are: ... burning sensation when passing urine"
+        },
+        {
+          "text": "Feeling sick, vomiting, diarrhoea, stomach ache and loss of appetite are very common.",
+          "evidence": "Very common ... feeling sick (nausea), vomiting ... diarrhoea or stomach ache ... loss of appetite"
+        },
+        {
+          "text": "Dehydration is uncommon and can cause thirst, lightheadedness or dizziness on standing.",
+          "evidence": "Dehydration, seen uncommonly (may affect up to 1 in 100 people) ... The signs of dehydration are not specific, but may include: ... unusual thirst ... lightheadedness or dizziness upon standing"
+        }
+      ],
+      "storage": [
+        {
+          "text": "Keep this medicine out of the sight and reach of children.",
+          "evidence": "Keep this medicine out of the sight and reach of children."
+        },
+        {
+          "text": "Do not use after the expiry date on the packaging.",
+          "evidence": "Do not use this medicine after the expiry date which is stated on the blister and the carton after ‘EXP’."
+        },
+        {
+          "text": "This medicine does not require any special storage conditions.",
+          "evidence": "This medicine does not require any special storage conditions."
+        },
+        {
+          "text": "Do not use if packaging is damaged or shows signs of tampering.",
+          "evidence": "Do not use this medicine if you notice that the packaging is damaged or shows signs of tampering."
+        }
+      ]
+    },
+    "pharmacist_questions": [
+      "What exact strength and dose of Synjardy should I take?",
+      "How should I manage Synjardy if I need an X-ray with contrast dye?",
+      "What should I do if I get signs of low blood sugar?",
+      "How often do I need my kidney function checked while taking this medicine?",
+      "What should I do if I vomit or get severe diarrhoea while taking Synjardy?"
+    ],
+    "verification": {
+      "unsupported": [],
+      "confidence": "high"
+    }
+  },
+  "detay": {
+    "dil": "en",
+    "kirpildi": false,
+    "cikti_dili": "en",
+    "uyari_sayisi": 16,
+    "belirsiz_sayisi": 5,
+    "soru_adayi_sayisi": 5,
+    "taslak_madde": 20,
+    "kod_elenen": 0,
+    "sayi_elenen": 0,
+    "llm_ilk_ret": 0,
+    "duzeltilen": 0,
+    "llm_elenen": 0,
+    "kriter_ret": {
+      "k1_no_added_info": 0,
+      "k2_same_meaning": 0,
+      "k3_condition_kept": 0,
+      "k4_same_numbers": 0
+    },
+    "reddedilenler": [],
+    "dogrulayici_calisti": true
+  },
+  "sure_sn": 17.31570863723755
+}

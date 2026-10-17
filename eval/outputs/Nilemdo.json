@@ -1,0 +1,115 @@
+{
+  "sonuc": {
+    "drug_name": "Nilemdo 180 mg film-coated tablets",
+    "cards": {
+      "what_for": [
+        {
+          "text": "It lowers 'bad' cholesterol levels in your blood.",
+          "evidence": "Nilemdo is a medicine that lowers levels of ‘bad’ cholesterol (also called “LDL-cholesterol”), a type of fat, in the blood."
+        },
+        {
+          "text": "It lowers high blood cholesterol in adults with hypercholesterolaemia.",
+          "evidence": "Adults with primary hypercholesterolaemia or mixed dyslipidaemia, which are conditions that cause a high cholesterol level in the blood."
+        }
+      ],
+      "how_to_use": [
+        {
+          "text": "Take one tablet once every day.",
+          "evidence": "The recommended dose is one tablet once daily."
+        },
+        {
+          "text": "Swallow the tablet whole with food or between meals.",
+          "evidence": "Swallow the tablet whole with food or between meals."
+        },
+        {
+          "text": "If you remember late, take the missed dose that day.",
+          "evidence": "a dose late in a day, take the missed dose and take the next dose at your regular time the next day."
+        },
+        {
+          "text": "If missed yesterday, take your regular dose today.",
+          "evidence": "the previous day’s dose, take your tablet at the regular time and do not make up for the forgotten dose."
+        },
+        {
+          "text": "Do not stop taking Nilemdo without your doctor's permission.",
+          "evidence": "Do not stop taking Nilemdo without your doctor’s permission as your cholesterol may rise again."
+        }
+      ],
+      "see_doctor_now": [
+        {
+          "text": "Tell your doctor immediately if you have unexplained muscle pain.",
+          "evidence": "Tell your doctor immediately about any unexplained muscle pain, tenderness or weakness."
+        },
+        {
+          "text": "If you take too much, contact your doctor immediately.",
+          "evidence": "If you take more Nilemdo than you should ... Contact your doctor or pharmacist immediately."
+        }
+      ],
+      "side_effects": [
+        {
+          "text": "Commonly, it may cause lower red blood cell counts.",
+          "evidence": "Common (may affect up to 1 in 10 people) ... lower number of red blood cells (anaemia)"
+        },
+        {
+          "text": "Commonly, it may cause gout or increased uric acid.",
+          "evidence": "Common (may affect up to 1 in 10 people) ... increased levels of uric acid in blood, gout"
+        },
+        {
+          "text": "Commonly, it may cause pain in shoulders, legs, or arms.",
+          "evidence": "Common (may affect up to 1 in 10 people) ... pain in shoulders, legs, or arms"
+        },
+        {
+          "text": "Uncommonly, it may cause weight loss.",
+          "evidence": "Uncommon (may affect up to 1 in 100 people) ... weight loss"
+        }
+      ],
+      "storage": [
+        {
+          "text": "Keep this medicine out of children's sight and reach.",
+          "evidence": "Keep this medicine out of the sight and reach of children."
+        },
+        {
+          "text": "This medicine does not require any special storage conditions.",
+          "evidence": "This medicine does not require any special storage conditions."
+        },
+        {
+          "text": "Do not use after the expiry date on the pack.",
+          "evidence": "Do not use this medicine after the expiry date which is stated on the blister and carton after EXP."
+        }
+      ]
+    },
+    "pharmacist_questions": [
+      "Are any of my other cholesterol medicines unsafe to take with Nilemdo?",
+      "What blood tests do I need while taking this medicine?",
+      "Is Nilemdo safe for me if I have kidney or liver problems?",
+      "What should I do if I take my dose at the wrong time of day?",
+      "What should I do if I miss a full day's dose?"
+    ],
+    "verification": {
+      "unsupported": [],
+      "confidence": "high"
+    }
+  },
+  "detay": {
+    "dil": "en",
+    "kirpildi": false,
+    "cikti_dili": "en",
+    "uyari_sayisi": 10,
+    "belirsiz_sayisi": 3,
+    "soru_adayi_sayisi": 5,
+    "taslak_madde": 16,
+    "kod_elenen": 0,
+    "sayi_elenen": 0,
+    "llm_ilk_ret": 0,
+    "duzeltilen": 0,
+    "llm_elenen": 0,
+    "kriter_ret": {
+      "k1_no_added_info": 0,
+      "k2_same_meaning": 0,
+      "k3_condition_kept": 0,
+      "k4_same_numbers": 0
+    },
+    "reddedilenler": [],
+    "dogrulayici_calisti": true
+  },
+  "sure_sn": 13.919082403182983
+}

@@ -34,6 +34,9 @@ OZET = CIKTILAR / "_ozet.json"
 SADAKAT_CSV = EVAL / "sadakat_kontrol.csv"
 SONUCLAR = EVAL / "results.md"
 SADAKAT_ORNEK = 3  # ilaç başına elle kontrol edilecek madde
+# Sadakat etiketlerini kim koydu; rapora aynen yazılır. Bir insan etiketlerse bunu değiştirin.
+SADAKAT_KONTROL_EDEN = ("Claude (Anthropic), an AI model independent of the Gemini pipeline. "
+                        "This is not a human review")
 
 
 def sade_metin(sonuc: dict) -> str:
@@ -190,18 +193,20 @@ def rapor_yaz(ozet: dict) -> None:
         "|---|---:|",
         f"| Draft, before verification: items not grounded in the leaflet or saying more than their quote | {yuzde(taslak_hata, kalan + cikarilan)} |",
         f"| Final cards, automatic checks: items removed because they could not be verified | {yuzde(cikarilan, kalan + cikarilan)} |",
-        f"| Final output, manual check: items not faithful to their quote | "
-        f"{yuzde(sadakat[1] - sadakat[0], sadakat[1]) if sadakat else 'manual check pending'} |",
+        f"| Final output, independent check (section 4): items not faithful to their quote | "
+        f"{yuzde(sadakat[1] - sadakat[0], sadakat[1]) if sadakat else 'check pending'} |",
     ]
 
-    y += ["", "## 4. Manual faithfulness check", ""]
+    y += ["", "## 4. Independent faithfulness check", ""]
     if sadakat:
-        y.append(f"{sadakat[1]} randomly sampled items ({SADAKAT_ORNEK} per medicine) were checked by hand: "
-                 "\"Is the plain sentence faithful to its quote?\"")
+        y.append(f"{sadakat[1]} randomly sampled final items ({SADAKAT_ORNEK} per medicine) were checked against "
+                 "their quotes with the verifier's four criteria: \"Is the plain sentence faithful to its quote?\"")
+        y.append("")
+        y.append(f"Reviewer: {SADAKAT_KONTROL_EDEN}.")
         y.append("")
         y.append(f"**Faithfulness: {sadakat[0]}/{sadakat[1]} = {yuzde(*sadakat)}**")
         y.append("")
-        y.append("Labels: `eval/sadakat_kontrol.csv` (E = yes, H = no)")
+        y.append("Labels and the reason for every H: `eval/sadakat_kontrol.csv` (E = yes, H = no)")
     else:
         y.append("Not labelled yet. Write E/H in the `sadik` column of `eval/sadakat_kontrol.csv`, "
                  "then run `python -m eval.run_eval --sadakat`.")

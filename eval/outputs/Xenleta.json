@@ -1,0 +1,10 @@
+{
+  "sonuc": {
+    "error": "The AI service has reached its usage limit. Please try again later."
+  },
+  "detay": {
+    "dil": "en",
+    "hata_detay": "Model çağrısı başarısız: kota doldu (429), biraz sonra tekrar deneyin"
+  },
+  "sure_sn": 41.83616590499878
+}

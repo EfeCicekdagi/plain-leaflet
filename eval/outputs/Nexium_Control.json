@@ -1,0 +1,115 @@
+{
+  "sonuc": {
+    "drug_name": "Nexium Control 20 mg gastro-resistant tablets / hard capsules",
+    "cards": {
+      "what_for": [
+        {
+          "text": "It treats short-term reflux symptoms like heartburn and acid regurgitation in adults.",
+          "evidence": "This medicine is used in adults for the short-term treatment of reflux symptoms (for example, heartburn and acid regurgitation)."
+        }
+      ],
+      "how_to_use": [
+        {
+          "text": "Take one tablet or capsule a day. Do not take more.",
+          "evidence": "The recommended dose is one tablet a day. ... Do not take more than this recommended dose of one tablet (20 mg) a day"
+        },
+        {
+          "text": "Swallow your tablet whole with half a glass of water.",
+          "evidence": "Swallow your tablet whole with half a glass of water. Do not chew or crush the tablet."
+        },
+        {
+          "text": "You can take it at any time, with or without food.",
+          "evidence": "You can take your tablet at any time of the day either with food or on an empty stomach."
+        },
+        {
+          "text": "If you forget a dose, take it as soon as you remember on the same day.",
+          "evidence": "If you forget to take a dose, take it as soon as you remember it, on the same day."
+        },
+        {
+          "text": "Do not take a double dose to make up for a forgotten dose.",
+          "evidence": "Do not take a double dose to make up for a forgotten dose."
+        }
+      ],
+      "see_doctor_now": [
+        {
+          "text": "Get urgent medical care if you get chest pain with dizziness, sweating, or shortness of breath.",
+          "evidence": "Seek urgent medical attention if you experience chest pain with light-headedness, sweating, dizziness or shoulder pain with shortness of breath."
+        },
+        {
+          "text": "Stop taking and see a doctor immediately if you notice sudden wheezing or throat swelling.",
+          "evidence": "stop taking Nexium Control and contact a doctor immediately: ... Sudden wheezing, swelling of your lips, tongue and throat, rash, fainting or difficulties in swallowing"
+        },
+        {
+          "text": "Stop taking and call a doctor immediately if your skin blisters or peels.",
+          "evidence": "stop taking Nexium Control and contact a doctor immediately: ... Reddening of the skin with blisters or peeling."
+        },
+        {
+          "text": "Stop taking and contact a doctor immediately if you notice yellow skin and dark urine.",
+          "evidence": "stop taking Nexium Control and contact a doctor immediately: ... Yellow skin, dark urine and tiredness, which can be symptoms of liver problems, seen rarely."
+        },
+        {
+          "text": "Tell your doctor immediately if you lose weight for no reason or vomit blood.",
+          "evidence": "Tell your doctor immediately before or after taking this medicine, if you notice any of the following symptoms ... You lose a lot of weight for no reason. ... You begin to vomit food or blood"
+        }
+      ],
+      "side_effects": [
+        {
+          "text": "Common side effects include headache, stomach pain, diarrhoea, constipation, wind, and nausea.",
+          "evidence": "Common (may affect up to 1 in 10 people) ... Headache. ... Effects on your stomach or gut: diarrhoea, stomach ache, constipation, wind (flatulence). ... Feeling sick (nausea) or being sick (vomiting)."
+        },
+        {
+          "text": "Uncommon side effects include swelling of feet, sleep problems, dizziness, and dry mouth.",
+          "evidence": "Uncommon (may affect up to 1 in 100 people) ... Swelling of the feet and ankles. ... Disturbed sleep (insomnia), feeling sleepy. ... Dizziness, tingling feelings such as “pins and needles”. ... Dry mouth."
+        }
+      ],
+      "storage": [
+        {
+          "text": "Keep this medicine out of the sight and reach of children.",
+          "evidence": "Keep this medicine out of the sight and reach of children."
+        },
+        {
+          "text": "Do not store above 30°C.",
+          "evidence": "Do not store above 30°C."
+        },
+        {
+          "text": "Keep it in the original package to protect from moisture.",
+          "evidence": "Keep this medicine in the original package in order to protect from moisture."
+        }
+      ]
+    },
+    "pharmacist_questions": [
+      "Is this medicine suitable for me since I am over 55 and taking other daily medicines?",
+      "Can I take this medicine safely with my other daily blood thinning or heart medicines?",
+      "What should I do if my heartburn symptoms do not improve after 14 days?",
+      "What serious side effects should I be most careful to watch out for?",
+      "How should I safely throw away any tablets I no longer use?"
+    ],
+    "verification": {
+      "unsupported": [],
+      "confidence": "high"
+    }
+  },
+  "detay": {
+    "dil": "en",
+    "kirpildi": false,
+    "cikti_dili": "en",
+    "uyari_sayisi": 21,
+    "belirsiz_sayisi": 3,
+    "soru_adayi_sayisi": 5,
+    "taslak_madde": 16,
+    "kod_elenen": 0,
+    "sayi_elenen": 0,
+    "llm_ilk_ret": 0,
+    "duzeltilen": 0,
+    "llm_elenen": 0,
+    "kriter_ret": {
+      "k1_no_added_info": 0,
+      "k2_same_meaning": 0,
+      "k3_condition_kept": 0,
+      "k4_same_numbers": 0
+    },
+    "reddedilenler": [],
+    "dogrulayici_calisti": true
+  },
+  "sure_sn": 35.64497900009155
+}

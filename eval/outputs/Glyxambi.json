@@ -1,0 +1,124 @@
+{
+  "sonuc": {
+    "drug_name": "Glyxambi 10 mg/5 mg film-coated tablets, Glyxambi 25 mg/5 mg film-coated tablets",
+    "cards": {
+      "what_for": [
+        {
+          "text": "Glyxambi is added to metformin, sulphonylurea, or both to treat adult type 2 diabetes.",
+          "evidence": "Glyxambi is added to metformin and/or sulphonylurea (SU) to treat type 2 diabetes in adult patients aged 18 years and older"
+        },
+        {
+          "text": "It lowers the amount of sugar in your blood.",
+          "evidence": "Thereby Glyxambi lowers the amount of sugar in your blood."
+        }
+      ],
+      "how_to_use": [
+        {
+          "text": "Swallow the tablet whole with water.",
+          "evidence": "Swallow the tablet whole with water."
+        },
+        {
+          "text": "You can take it with or without food at any time.",
+          "evidence": "You can take Glyxambi with or without food. ... You can take the tablet at any time of the day."
+        },
+        {
+          "text": "The usual starting dose is one 10 mg/5 mg tablet once daily.",
+          "evidence": "The usual starting dose is one film-coated tablet of Glyxambi 10 mg/5 mg (10 mg empagliflozin and 5 mg linagliptin) once a day."
+        },
+        {
+          "text": "If 12 hours or more remain until next dose, take it when remembered.",
+          "evidence": "If it is 12 hours or more until your next dose, take Glyxambi as soon as you remember."
+        },
+        {
+          "text": "If less than 12 hours remain, skip it and do not double up.",
+          "evidence": "If it is less than 12 hours until your next dose, skip the missed dose. ... Do not take a double dose of this medicine to make up for a forgotten dose."
+        }
+      ],
+      "see_doctor_now": [
+        {
+          "text": "Stop taking and call a doctor now if you get diabetic ketoacidosis signs.",
+          "evidence": "contact a doctor or the nearest hospital straight away and stop taking this medicine until further advice from your doctor. These symptoms could be a sign of “diabetic ketoacidosis”"
+        },
+        {
+          "text": "Talk to a doctor immediately if you have genital swelling, redness, and fever.",
+          "evidence": "Talk to your doctor immediately if you develop a combination of symptoms of pain, tenderness, redness, or swelling of the genitals or the area between the genitals and the anus with fever or feeling generally unwell."
+        },
+        {
+          "text": "Contact a doctor straight away if you get face, lips, or throat swelling.",
+          "evidence": "Contact your doctor immediately if you notice any of the following side effects: ... allergic reactions, which may be serious, including hives (urticaria) and swelling of the face, lips, tongue, and throat"
+        },
+        {
+          "text": "Contact your doctor immediately if you get persistent severe stomach pain.",
+          "evidence": "Contact your doctor immediately if you notice any of the following side effects: ... persistent, severe abdominal (stomach) pain"
+        }
+      ],
+      "side_effects": [
+        {
+          "text": "Low blood sugar is common when taken with insulin or sulphonylureas.",
+          "evidence": "Low blood sugar (hypoglycaemia), seen commonly (may affect up to 1 in 10 people) ... If you take Glyxambi with another medicine that can cause low blood sugar, such as a sulphonylurea or insulin, you are at risk of getting too low blood sugar"
+        },
+        {
+          "text": "Uncommonly, it may cause loss of body fluid (dehydration).",
+          "evidence": "Loss of body fluid (dehydration), seen uncommonly"
+        }
+      ],
+      "storage": [
+        {
+          "text": "Keep this medicine out of the sight and reach of children.",
+          "evidence": "Keep this medicine out of the sight and reach of children."
+        },
+        {
+          "text": "This medicine does not require any special storage conditions.",
+          "evidence": "This medicine does not require any special storage conditions."
+        },
+        {
+          "text": "Do not use if packaging is damaged or shows signs of tampering.",
+          "evidence": "Do not use this medicine if you notice that the packaging is damaged or shows signs of tampering."
+        }
+      ]
+    },
+    "pharmacist_questions": [
+      "Does this medicine interact with my other blood sugar tablets or insulin?",
+      "What should I do if my blood sugar drops too low?",
+      "Do I need regular kidney tests while taking this medicine?",
+      "What time of day is best to take my tablet?",
+      "How should I dispose of tablets I no longer need?"
+    ],
+    "verification": {
+      "unsupported": [
+        "Urinary tract infections and genital yeast infections are common side effects."
+      ],
+      "confidence": "medium"
+    }
+  },
+  "detay": {
+    "dil": "en",
+    "kirpildi": false,
+    "cikti_dili": "en",
+    "uyari_sayisi": 6,
+    "belirsiz_sayisi": 5,
+    "soru_adayi_sayisi": 5,
+    "taslak_madde": 17,
+    "kod_elenen": 0,
+    "sayi_elenen": 0,
+    "llm_ilk_ret": 2,
+    "duzeltilen": 1,
+    "llm_elenen": 1,
+    "kriter_ret": {
+      "k1_no_added_info": 1,
+      "k2_same_meaning": 2,
+      "k3_condition_kept": 1,
+      "k4_same_numbers": 0
+    },
+    "reddedilenler": [
+      {
+        "text": "Urinary tract infections and genital yeast infections are common side effects.",
+        "evidence": "Urinary tract infection, seen commonly ... genital yeast infection like thrush",
+        "kontrol": "llm",
+        "reason": "Evidence states urinary tract infection is common, but does not state that genital yeast infection is common."
+      }
+    ],
+    "dogrulayici_calisti": true
+  },
+  "sure_sn": 56.45599842071533
+}

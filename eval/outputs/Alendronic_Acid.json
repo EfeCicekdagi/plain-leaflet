@@ -1,0 +1,127 @@
+{
+  "sonuc": {
+    "drug_name": "Alendronic Acid 70 mg tablets",
+    "cards": {
+      "what_for": [
+        {
+          "text": "Your doctor prescribed this medicine to treat your osteoporosis.",
+          "evidence": "Your doctor has prescribed Alendronic Acid to treat your osteoporosis."
+        },
+        {
+          "text": "It helps prevent bone loss and rebuild bone after menopause.",
+          "evidence": "Alendronic Acid prevents the loss of bone that occurs in women after they have been through the menopause, and helps to rebuild bone."
+        },
+        {
+          "text": "It lowers the risk of spine and hip fractures.",
+          "evidence": "It reduces the risk of spine and hip fractures."
+        }
+      ],
+      "how_to_use": [
+        {
+          "text": "Take one Alendronic Acid tablet once a week.",
+          "evidence": "Take one Alendronic Acid tablet once a week."
+        },
+        {
+          "text": "After getting up, swallow the tablet whole with a full glass of water only, before eating, drinking, or taking other medicine.",
+          "evidence": "After getting up for the day and before taking any food, drink, or other medicine, swallow your Alendronic Acid tablet whole with a full glass of water only"
+        },
+        {
+          "text": "Do not lie down for at least 30 minutes after taking it.",
+          "evidence": "Do not lie down stay fully upright (sitting, standing or walking) for at least 30 minutes after swallowing the tablet."
+        },
+        {
+          "text": "After swallowing your tablet, wait at least 30 minutes before eating, drinking, or taking other medicine.",
+          "evidence": "After swallowing your Alendronic Acid tablet, wait at least 30 minutes before taking your first food, drink, or other medicine of the day"
+        },
+        {
+          "text": "If missed, take one tablet the morning after you remember.",
+          "evidence": "If you miss a dose, just take one tablet on the morning after you remember."
+        }
+      ],
+      "see_doctor_now": [
+        {
+          "text": "Stop taking and call your doctor if you get swallowing pain or heartburn.",
+          "evidence": "If you develop difficulty or pain upon swallowing, chest pain, or new or worsening heartburn, stop taking Alendronic Acid and contact your doctor."
+        },
+        {
+          "text": "See your doctor at once if you get allergic face or throat swelling.",
+          "evidence": "See your doctor immediately if you notice any of the following side effects ... allergic reactions such as hives; swelling of the face, lips, tongue and/or throat, possibly causing difficulty breathing or swallowing"
+        },
+        {
+          "text": "See your doctor immediately if you have mouth or jaw pain, mouth swelling or sores, jaw numbness or heaviness, or loose teeth.",
+          "evidence": "See your doctor immediately if you notice any of the following side effects ... pain in the mouth, and/or jaw, swelling or sores inside the mouth, numbness or a feeling of heaviness in the jaw, or loosening of a tooth."
+        },
+        {
+          "text": "Contact your doctor if you feel pain or discomfort in your thigh or hip.",
+          "evidence": "Contact your doctor if you experience pain, weakness or discomfort in your thigh, hip or groin as this may be an early indication of a possible fracture of the thigh bone."
+        }
+      ],
+      "side_effects": [
+        {
+          "text": "Very common: bone, muscle, or joint pain which is sometimes severe.",
+          "evidence": "Very common (may affect more than 1 in 10 people): ... bone, muscle and/or joint pain which is sometimes severe."
+        },
+        {
+          "text": "Common: stomach pain, constipation, bloating, indigestion, or diarrhoea.",
+          "evidence": "Common (may affect up to 1 in 10 people): ... abdominal pain; uncomfortable feeling in the stomach or belching after eating; constipation; full or bloated feeling in the stomach; diarrhoea; flatulence"
+        },
+        {
+          "text": "Common: headache, dizziness, tiredness, or swelling of hands or legs.",
+          "evidence": "Common (may affect up to 1 in 10 people): ... headache; dizziness ... tiredness; swelling in the hands or legs."
+        },
+        {
+          "text": "Uncommon: nausea, vomiting, blurred vision, rash, or red eyes.",
+          "evidence": "Uncommon (may affect up to 1 in 100 people): ... nausea; vomiting ... blurred vision; pain or redness in the eye ... rash; redness of the skin"
+        }
+      ],
+      "storage": [
+        {
+          "text": "Keep out of the sight and reach of children.",
+          "evidence": "Keep this medicine out of the sight and reach of children."
+        },
+        {
+          "text": "Do not use after the expiry date stated on the carton.",
+          "evidence": "Do not use this medicine after the expiry date which is stated on the carton after EXP."
+        },
+        {
+          "text": "This medicine does not require any special storage conditions.",
+          "evidence": "This medicinal product does not require any special storage conditions."
+        }
+      ]
+    },
+    "pharmacist_questions": [
+      "How long do I need to keep taking this weekly medicine?",
+      "Should I take calcium or Vitamin D supplements with this medicine?",
+      "What dental care should I follow while taking this medicine?",
+      "Is this medicine safe for me if I have kidney problems?",
+      "How should I throw away unused tablets safely?"
+    ],
+    "verification": {
+      "unsupported": [],
+      "confidence": "high"
+    }
+  },
+  "detay": {
+    "dil": "en",
+    "kirpildi": false,
+    "cikti_dili": "en",
+    "uyari_sayisi": 14,
+    "belirsiz_sayisi": 3,
+    "soru_adayi_sayisi": 5,
+    "taslak_madde": 19,
+    "kod_elenen": 0,
+    "sayi_elenen": 0,
+    "llm_ilk_ret": 4,
+    "duzeltilen": 4,
+    "llm_elenen": 0,
+    "kriter_ret": {
+      "k1_no_added_info": 1,
+      "k2_same_meaning": 1,
+      "k3_condition_kept": 3,
+      "k4_same_numbers": 1
+    },
+    "reddedilenler": [],
+    "dogrulayici_calisti": true
+  },
+  "sure_sn": 28.271441221237183
+}
